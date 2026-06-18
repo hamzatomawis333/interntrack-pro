@@ -264,5 +264,3 @@ export function AttendanceTable({
   );
 }
 
-// Re-export for sibling routes
-export { Button };
