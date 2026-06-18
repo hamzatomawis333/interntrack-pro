@@ -9,38 +9,222 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as InternRouteImport } from './routes/intern'
+import { Route as ChangePasswordRouteImport } from './routes/change-password'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as InternIndexRouteImport } from './routes/intern.index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as InternHistoryRouteImport } from './routes/intern.history'
+import { Route as InternCalendarRouteImport } from './routes/intern.calendar'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminReportsRouteImport } from './routes/admin.reports'
+import { Route as AdminAttendanceRouteImport } from './routes/admin.attendance'
 
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InternRoute = InternRouteImport.update({
+  id: '/intern',
+  path: '/intern',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChangePasswordRoute = ChangePasswordRouteImport.update({
+  id: '/change-password',
+  path: '/change-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InternIndexRoute = InternIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => InternRoute,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const InternHistoryRoute = InternHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => InternRoute,
+} as any)
+const InternCalendarRoute = InternCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => InternRoute,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminReportsRoute = AdminReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAttendanceRoute = AdminAttendanceRouteImport.update({
+  id: '/attendance',
+  path: '/attendance',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/change-password': typeof ChangePasswordRoute
+  '/intern': typeof InternRouteWithChildren
+  '/register': typeof RegisterRoute
+  '/admin/attendance': typeof AdminAttendanceRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/intern/calendar': typeof InternCalendarRoute
+  '/intern/history': typeof InternHistoryRoute
+  '/admin/': typeof AdminIndexRoute
+  '/intern/': typeof InternIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/change-password': typeof ChangePasswordRoute
+  '/register': typeof RegisterRoute
+  '/admin/attendance': typeof AdminAttendanceRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/intern/calendar': typeof InternCalendarRoute
+  '/intern/history': typeof InternHistoryRoute
+  '/admin': typeof AdminIndexRoute
+  '/intern': typeof InternIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/change-password': typeof ChangePasswordRoute
+  '/intern': typeof InternRouteWithChildren
+  '/register': typeof RegisterRoute
+  '/admin/attendance': typeof AdminAttendanceRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/intern/calendar': typeof InternCalendarRoute
+  '/intern/history': typeof InternHistoryRoute
+  '/admin/': typeof AdminIndexRoute
+  '/intern/': typeof InternIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/auth'
+    | '/change-password'
+    | '/intern'
+    | '/register'
+    | '/admin/attendance'
+    | '/admin/reports'
+    | '/admin/users'
+    | '/intern/calendar'
+    | '/intern/history'
+    | '/admin/'
+    | '/intern/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/change-password'
+    | '/register'
+    | '/admin/attendance'
+    | '/admin/reports'
+    | '/admin/users'
+    | '/intern/calendar'
+    | '/intern/history'
+    | '/admin'
+    | '/intern'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/auth'
+    | '/change-password'
+    | '/intern'
+    | '/register'
+    | '/admin/attendance'
+    | '/admin/reports'
+    | '/admin/users'
+    | '/intern/calendar'
+    | '/intern/history'
+    | '/admin/'
+    | '/intern/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  ChangePasswordRoute: typeof ChangePasswordRoute
+  InternRoute: typeof InternRouteWithChildren
+  RegisterRoute: typeof RegisterRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/intern': {
+      id: '/intern'
+      path: '/intern'
+      fullPath: '/intern'
+      preLoaderRoute: typeof InternRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/change-password': {
+      id: '/change-password'
+      path: '/change-password'
+      fullPath: '/change-password'
+      preLoaderRoute: typeof ChangePasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +232,97 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/intern/': {
+      id: '/intern/'
+      path: '/'
+      fullPath: '/intern/'
+      preLoaderRoute: typeof InternIndexRouteImport
+      parentRoute: typeof InternRoute
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/intern/history': {
+      id: '/intern/history'
+      path: '/history'
+      fullPath: '/intern/history'
+      preLoaderRoute: typeof InternHistoryRouteImport
+      parentRoute: typeof InternRoute
+    }
+    '/intern/calendar': {
+      id: '/intern/calendar'
+      path: '/calendar'
+      fullPath: '/intern/calendar'
+      preLoaderRoute: typeof InternCalendarRouteImport
+      parentRoute: typeof InternRoute
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/reports': {
+      id: '/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/attendance': {
+      id: '/admin/attendance'
+      path: '/attendance'
+      fullPath: '/admin/attendance'
+      preLoaderRoute: typeof AdminAttendanceRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminAttendanceRoute: typeof AdminAttendanceRoute
+  AdminReportsRoute: typeof AdminReportsRoute
+  AdminUsersRoute: typeof AdminUsersRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminAttendanceRoute: AdminAttendanceRoute,
+  AdminReportsRoute: AdminReportsRoute,
+  AdminUsersRoute: AdminUsersRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface InternRouteChildren {
+  InternCalendarRoute: typeof InternCalendarRoute
+  InternHistoryRoute: typeof InternHistoryRoute
+  InternIndexRoute: typeof InternIndexRoute
+}
+
+const InternRouteChildren: InternRouteChildren = {
+  InternCalendarRoute: InternCalendarRoute,
+  InternHistoryRoute: InternHistoryRoute,
+  InternIndexRoute: InternIndexRoute,
+}
+
+const InternRouteWithChildren =
+  InternRoute._addFileChildren(InternRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
+  AuthRoute: AuthRoute,
+  ChangePasswordRoute: ChangePasswordRoute,
+  InternRoute: InternRouteWithChildren,
+  RegisterRoute: RegisterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
