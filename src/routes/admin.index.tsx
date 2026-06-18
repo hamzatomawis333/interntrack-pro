@@ -149,7 +149,7 @@ function QuickAction({
 }) {
   return (
     <Link
-      to={to}
+      to={to as never}
       className="group rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)] transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)]"
     >
       <div className="flex items-start justify-between">
