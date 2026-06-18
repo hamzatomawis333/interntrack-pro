@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
-import { Button, Card, PageHeader, StatCard } from "@/components/ui-kit";
+import { Card, PageHeader, StatCard } from "@/components/ui-kit";
 import { fmtDateLong, fmtTime, isWeekend } from "@/lib/date-utils";
 import { toast } from "sonner";
 import { LogIn, LogOut, Clock, CalendarDays, Timer, Target } from "lucide-react";
