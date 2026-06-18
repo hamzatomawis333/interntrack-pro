@@ -4,6 +4,7 @@ import { LayoutDashboard, ClipboardList, BarChart3, Users, LogOut, Clock3 } from
 import type { ReactNode } from "react";
 
 interface NavItem {
+  // typed loosely; TanStack Link accepts any registered path at runtime
   to: string;
   label: string;
   icon: ReactNode;
