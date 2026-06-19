@@ -1,17 +1,9 @@
 import { type ReactNode } from "react";
 
-export function Card({
-  children,
-  className = "",
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
+export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
     <div
-      className={
-        "rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)] " + className
-      }
+      className={`rounded-2xl border border-border bg-card p-5 shadow-(--shadow-card) ${className}`}
     >
       {children}
     </div>
@@ -67,9 +59,7 @@ export function PageHeader({
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">{title}</h1>
-        {description && (
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-        )}
+        {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
       </div>
       {actions && <div className="flex gap-2">{actions}</div>}
     </div>
@@ -119,7 +109,7 @@ export function Input({
       {label && <span className="mb-1.5 block text-sm font-medium">{label}</span>}
       <input
         className={
-          "h-11 w-full rounded-xl border border-input bg-card px-3.5 text-sm shadow-[var(--shadow-soft)] outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 " +
+          "h-11 w-full rounded-xl border border-input bg-card px-3.5 text-sm shadow-(--shadow-soft) outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 " +
           className
         }
         {...props}

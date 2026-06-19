@@ -23,7 +23,13 @@ const internNav: NavItem[] = [
   { to: "/intern/calendar", label: "Calendar", icon: <BarChart3 className="h-4 w-4" /> },
 ];
 
-export function AppShell({ variant, children }: { variant: "admin" | "intern"; children?: ReactNode }) {
+export function AppShell({
+  variant,
+  children,
+}: {
+  variant: "admin" | "intern";
+  children?: ReactNode;
+}) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -49,9 +55,7 @@ export function AppShell({ variant, children }: { variant: "admin" | "intern"; c
         <nav className="flex-1 space-y-1 px-3 py-4">
           {nav.map((item) => {
             const active =
-              item.to === `/${variant}`
-                ? pathname === item.to
-                : pathname.startsWith(item.to);
+              item.to === `/${variant}` ? pathname === item.to : pathname.startsWith(item.to);
             return (
               <Link
                 key={item.to}

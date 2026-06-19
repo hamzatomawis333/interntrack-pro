@@ -54,7 +54,7 @@ function RegisterPage() {
           <span className="font-semibold">OJT Tracker</span>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)] sm:p-8">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-(--shadow-card) sm:p-8">
           <h1 className="text-2xl font-semibold tracking-tight">Create your intern account</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Fill in your details to start logging attendance.

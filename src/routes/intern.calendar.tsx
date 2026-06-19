@@ -24,9 +24,7 @@ function CalendarPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const data = await api<DayRecord[]>(
-          `/attendance/calendar?year=${year}&month=${month + 1}`
-        );
+        const data = await api<DayRecord[]>(`/attendance/calendar?year=${year}&month=${month + 1}`);
         const map: Record<string, DayRecord> = {};
         data.forEach((d) => (map[d.date] = d));
         setRecords(map);

@@ -55,7 +55,6 @@ function InternDashboard() {
 
   useEffect(() => {
     loadSummary();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const weekend = isWeekend(now);
@@ -109,10 +108,14 @@ function InternDashboard() {
       {/* Clock + actions */}
       <Card className="overflow-hidden p-0">
         <div className="grid gap-0 md:grid-cols-[1.2fr_1fr]">
-          <div className="bg-gradient-to-br from-primary to-[oklch(0.5_0.14_175)] p-8 text-primary-foreground">
+          <div className="bg-linear-to-br from-primary to-[oklch(0.5_0.14_175)] p-8 text-primary-foreground">
             <div className="text-xs uppercase tracking-wider text-white/70">Current time</div>
             <div className="mt-2 font-mono text-5xl font-semibold tracking-tight md:text-6xl">
-              {now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+              {now.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              })}
             </div>
             <div className="mt-2 text-sm text-white/80">
               {now.toLocaleDateString(undefined, { weekday: "long" })} · {now.toLocaleDateString()}
@@ -134,7 +137,7 @@ function InternDashboard() {
             <button
               onClick={handleTimeIn}
               disabled={!canTimeIn || acting}
-              className="group flex h-24 items-center justify-center gap-3 rounded-2xl bg-primary text-lg font-semibold text-primary-foreground shadow-[var(--shadow-soft)] transition-all hover:shadow-[var(--shadow-elevated)] disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
+              className="group flex h-24 items-center justify-center gap-3 rounded-2xl bg-primary text-lg font-semibold text-primary-foreground shadow-(--shadow-soft) transition-all hover:shadow-(--shadow-elevated) disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
             >
               <LogIn className="h-6 w-6 transition-transform group-enabled:group-hover:-translate-x-1" />
               TIME IN
@@ -195,7 +198,7 @@ function InternDashboard() {
         </div>
         <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-primary to-[oklch(0.7_0.16_155)] transition-all duration-500"
+            className="h-full rounded-full bg-linear-to-r from-primary to-[oklch(0.7_0.16_155)] transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -217,13 +220,7 @@ function fmt(n: number) {
   return n.toFixed(2).replace(/\.00$/, "") + " h";
 }
 
-export function AttendanceTable({
-  rows,
-  loading,
-}: {
-  rows: AttendanceRow[];
-  loading?: boolean;
-}) {
+export function AttendanceTable({ rows, loading }: { rows: AttendanceRow[]; loading?: boolean }) {
   if (loading) {
     return <div className="p-8 text-center text-sm text-muted-foreground">Loading…</div>;
   }
@@ -263,4 +260,3 @@ export function AttendanceTable({
     </div>
   );
 }
-

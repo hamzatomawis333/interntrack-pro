@@ -10,11 +10,11 @@ router.get("/stats", requireAuth(["admin"]), async (req, res) => {
   const [[a]] = await pool.query("SELECT COUNT(*) AS n FROM users WHERE role='intern'");
   const [[b]] = await pool.query(
     "SELECT COUNT(*) AS n FROM attendance WHERE attendance_date = ? AND time_in IS NOT NULL",
-    [today]
+    [today],
   );
   const [[c]] = await pool.query(
     `SELECT COALESCE(SUM(total_hours),0) + COALESCE((SELECT SUM(hours) FROM manual_attendance),0) AS h
-     FROM attendance`
+     FROM attendance`,
   );
   const total_interns = Number(a.n);
   const present_today = Number(b.n);
@@ -23,7 +23,7 @@ router.get("/stats", requireAuth(["admin"]), async (req, res) => {
   const [recent] = await pool.query(
     `SELECT a.id, u.fullname, a.attendance_date, a.time_in, a.time_out, a.total_hours
      FROM attendance a JOIN users u ON u.id = a.user_id
-     ORDER BY a.attendance_date DESC, a.id DESC LIMIT 10`
+     ORDER BY a.attendance_date DESC, a.id DESC LIMIT 10`,
   );
 
   res.json({
@@ -72,14 +72,14 @@ router.get("/reports", requireAuth(["admin"]), async (req, res) => {
             AS rendered_hours
      FROM users u
      WHERE u.role = 'intern'
-     ORDER BY u.fullname ASC`
+     ORDER BY u.fullname ASC`,
   );
   res.json(
     rows.map((r) => ({
       ...r,
       rendered_hours: Number(r.rendered_hours),
       required_hours: Number(r.required_hours),
-    }))
+    })),
   );
 });
 
@@ -87,7 +87,7 @@ router.get("/reports", requireAuth(["admin"]), async (req, res) => {
 router.get("/interns", requireAuth(["admin"]), async (req, res) => {
   const [rows] = await pool.query(
     `SELECT id, fullname, username, required_hours, created_at
-     FROM users WHERE role = 'intern' ORDER BY created_at DESC`
+     FROM users WHERE role = 'intern' ORDER BY created_at DESC`,
   );
   res.json(rows);
 });
@@ -97,10 +97,10 @@ router.patch("/interns/:id", requireAuth(["admin"]), async (req, res) => {
   const { required_hours } = req.body || {};
   if (!required_hours || required_hours < 1)
     return res.status(400).json({ message: "Invalid required_hours" });
-  await pool.query(
-    "UPDATE users SET required_hours = ? WHERE id = ? AND role = 'intern'",
-    [required_hours, req.params.id]
-  );
+  await pool.query("UPDATE users SET required_hours = ? WHERE id = ? AND role = 'intern'", [
+    required_hours,
+    req.params.id,
+  ]);
   res.json({ message: "Updated" });
 });
 

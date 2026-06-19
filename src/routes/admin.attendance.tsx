@@ -70,7 +70,13 @@ function AttendancePage() {
             placeholder="Search by name"
           />
           <Input label="Date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-          <Input label="Month" type="month" value={month} onChange={(e) => setMonth(e.target.value)} />
+          // eslint-disable-next-line prettier/prettier
+          <Input
+            label="Month"
+            type="month"
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+          />
           <div className="flex items-end gap-2">
             <button
               type="submit"

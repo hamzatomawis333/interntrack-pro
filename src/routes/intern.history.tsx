@@ -32,7 +32,7 @@ function HistoryPage() {
   const load = async () => {
     try {
       const data = await api<{ rows: Row[]; weekly: { day: string; hours: number }[] }>(
-        "/attendance/history"
+        "/attendance/history",
       );
       setRows(data.rows);
       setWeekly(data.weekly);
@@ -63,7 +63,7 @@ function HistoryPage() {
     }
   };
 
-  const weeklyTotal = weekly.reduce((acc, w) => acc + w.hours, 0);
+  const weeklyTotal = (weekly || []).reduce((acc, w) => acc + Number(w.hours || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -81,9 +81,27 @@ function HistoryPage() {
       {showForm && (
         <Card>
           <form onSubmit={handleAdd} className="grid gap-3 sm:grid-cols-4 sm:items-end">
-            <Input label="Date" type="date" required value={date} onChange={(e) => setDate(e.target.value)} />
-            <Input label="Time in" type="time" required value={timeIn} onChange={(e) => setTimeIn(e.target.value)} />
-            <Input label="Time out" type="time" required value={timeOut} onChange={(e) => setTimeOut(e.target.value)} />
+            <Input
+              label="Date"
+              type="date"
+              required
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
+            <Input
+              label="Time in"
+              type="time"
+              required
+              value={timeIn}
+              onChange={(e) => setTimeIn(e.target.value)}
+            />
+            <Input
+              label="Time out"
+              type="time"
+              required
+              value={timeOut}
+              onChange={(e) => setTimeOut(e.target.value)}
+            />
             <Button type="submit">Save entry</Button>
           </form>
         </Card>
@@ -102,10 +120,14 @@ function HistoryPage() {
           </div>
         </div>
         <div className="grid grid-cols-5 gap-2">
-          {weekly.map((w) => (
+          {(weekly || []).map((w) => (
             <div key={w.day} className="rounded-xl bg-muted/50 p-3 text-center">
               <div className="text-xs font-medium text-muted-foreground">{w.day.slice(0, 3)}</div>
-              <div className="mt-1 text-lg font-semibold tabular-nums">{w.hours.toFixed(1)}</div>
+
+              <div className="mt-1 text-lg font-semibold tabular-nums">
+                {Number(w.hours ?? 0).toFixed(1)}
+              </div>
+
               <div className="text-[10px] text-muted-foreground">hours</div>
             </div>
           ))}
@@ -151,7 +173,7 @@ function HistoryPage() {
                       </span>
                     </td>
                     <td className="px-5 py-3 text-right font-semibold tabular-nums">
-                      {r.total_hours ? r.total_hours.toFixed(2) : "—"}
+                      {r.total_hours !== null ? Number(r.total_hours).toFixed(2) : "—"};
                     </td>
                   </tr>
                 ))}

@@ -1,10 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  Outlet,
-  createRootRouteWithContext,
-  HeadContent,
-  Scripts,
-} from "@tanstack/react-router";
+import { Outlet, createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/react-router";
 import { type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
@@ -32,7 +27,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       <div>
         <div className="text-7xl font-semibold text-primary">404</div>
         <p className="mt-2 text-muted-foreground">This page doesn't exist.</p>
-        <a href="/" className="mt-6 inline-block rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
+        <a
+          href="/"
+          className="mt-6 inline-block rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+        >
           Go home
         </a>
       </div>

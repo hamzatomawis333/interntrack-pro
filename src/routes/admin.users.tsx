@@ -66,7 +66,10 @@ function UsersPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Intern accounts" description="Manage intern profiles and required hours." />
+      <PageHeader
+        title="Intern accounts"
+        description="Manage intern profiles and required hours."
+      />
 
       <Card className="p-0">
         {loading ? (
@@ -97,7 +100,7 @@ function UsersPage() {
                         type="number"
                         min={1}
                         defaultValue={r.required_hours}
-                        className="!h-9 max-w-28"
+                        className="h-9!-w-28"
                         onChange={(e) =>
                           setEdits((p) => ({ ...p, [r.id]: parseInt(e.target.value || "0", 10) }))
                         }

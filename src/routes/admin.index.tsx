@@ -2,7 +2,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { Card, PageHeader, StatCard } from "@/components/ui-kit";
-import { Users, CheckCircle2, XCircle, Clock, ArrowRight, ClipboardList, BarChart3 } from "lucide-react";
+import {
+  Users,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  ArrowRight,
+  ClipboardList,
+  BarChart3,
+} from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/")({
@@ -150,7 +158,7 @@ function QuickAction({
   return (
     <Link
       to={to as never}
-      className="group rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)] transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)]"
+      className="group rounded-2xl border border-border bg-card p-5 shadow-(--shadow-card) transition-all hover:-translate-y-0.5 hover:shadow-(--shadow-elevated)"
     >
       <div className="flex items-start justify-between">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-soft text-primary">

@@ -49,7 +49,7 @@ function ChangePasswordPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
       <div className="w-full max-w-md">
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)] sm:p-8">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-(--shadow-card) sm:p-8">
           <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-soft text-primary">
             <ShieldCheck className="h-6 w-6" />
           </div>

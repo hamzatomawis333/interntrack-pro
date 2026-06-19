@@ -14,8 +14,7 @@ function InternLayout() {
   useEffect(() => {
     if (loading) return;
     if (!user) navigate({ to: "/auth", replace: true });
-    else if (user.must_change_password)
-      navigate({ to: "/change-password", replace: true });
+    else if (user.must_change_password) navigate({ to: "/change-password", replace: true });
     else if (user.role !== "intern") navigate({ to: "/admin", replace: true });
   }, [user, loading, navigate]);
 
