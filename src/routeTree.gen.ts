@@ -17,6 +17,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as InternIndexRouteImport } from './routes/intern.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as InternReportsRouteImport } from './routes/intern.reports'
 import { Route as InternHistoryRouteImport } from './routes/intern.history'
 import { Route as InternCalendarRouteImport } from './routes/intern.calendar'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
@@ -63,6 +64,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const InternReportsRoute = InternReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => InternRoute,
+} as any)
 const InternHistoryRoute = InternHistoryRouteImport.update({
   id: '/history',
   path: '/history',
@@ -101,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AdminUsersRoute
   '/intern/calendar': typeof InternCalendarRoute
   '/intern/history': typeof InternHistoryRoute
+  '/intern/reports': typeof InternReportsRoute
   '/admin/': typeof AdminIndexRoute
   '/intern/': typeof InternIndexRoute
 }
@@ -114,6 +121,7 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AdminUsersRoute
   '/intern/calendar': typeof InternCalendarRoute
   '/intern/history': typeof InternHistoryRoute
+  '/intern/reports': typeof InternReportsRoute
   '/admin': typeof AdminIndexRoute
   '/intern': typeof InternIndexRoute
 }
@@ -130,6 +138,7 @@ export interface FileRoutesById {
   '/admin/users': typeof AdminUsersRoute
   '/intern/calendar': typeof InternCalendarRoute
   '/intern/history': typeof InternHistoryRoute
+  '/intern/reports': typeof InternReportsRoute
   '/admin/': typeof AdminIndexRoute
   '/intern/': typeof InternIndexRoute
 }
@@ -147,6 +156,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/intern/calendar'
     | '/intern/history'
+    | '/intern/reports'
     | '/admin/'
     | '/intern/'
   fileRoutesByTo: FileRoutesByTo
@@ -160,6 +170,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/intern/calendar'
     | '/intern/history'
+    | '/intern/reports'
     | '/admin'
     | '/intern'
   id:
@@ -175,6 +186,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/intern/calendar'
     | '/intern/history'
+    | '/intern/reports'
     | '/admin/'
     | '/intern/'
   fileRoutesById: FileRoutesById
@@ -246,6 +258,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/intern/reports': {
+      id: '/intern/reports'
+      path: '/reports'
+      fullPath: '/intern/reports'
+      preLoaderRoute: typeof InternReportsRouteImport
+      parentRoute: typeof InternRoute
+    }
     '/intern/history': {
       id: '/intern/history'
       path: '/history'
@@ -303,12 +322,14 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 interface InternRouteChildren {
   InternCalendarRoute: typeof InternCalendarRoute
   InternHistoryRoute: typeof InternHistoryRoute
+  InternReportsRoute: typeof InternReportsRoute
   InternIndexRoute: typeof InternIndexRoute
 }
 
 const InternRouteChildren: InternRouteChildren = {
   InternCalendarRoute: InternCalendarRoute,
   InternHistoryRoute: InternHistoryRoute,
+  InternReportsRoute: InternReportsRoute,
   InternIndexRoute: InternIndexRoute,
 }
 

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
@@ -120,11 +120,13 @@ function InternDashboard() {
             <div className="mt-2 text-sm text-white/80">
               {now.toLocaleDateString(undefined, { weekday: "long" })} · {now.toLocaleDateString()}
             </div>
+
             {weekend && (
               <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur">
                 Weekend — attendance disabled
               </div>
             )}
+
             {!weekend && today?.time_in && (
               <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur">
                 <Clock className="h-3.5 w-3.5" />
@@ -137,22 +139,40 @@ function InternDashboard() {
             <button
               onClick={handleTimeIn}
               disabled={!canTimeIn || acting}
-              className="group flex h-24 items-center justify-center gap-3 rounded-2xl bg-primary text-lg font-semibold text-primary-foreground shadow-(--shadow-soft) transition-all hover:shadow-(--shadow-elevated) disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
+              className="group flex h-24 items-center justify-center gap-3 rounded-2xl bg-primary text-lg font-semibold text-primary-foreground shadow-(--shadow-soft) transition-all hover:shadow-(--shadow-elevated) disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
             >
-              <LogIn className="h-6 w-6 transition-transform group-enabled:group-hover:-translate-x-1" />
+              <LogIn className="h-6 w-6" />
               TIME IN
             </button>
+
             <button
               onClick={handleTimeOut}
               disabled={!canTimeOut || acting}
               className="group flex h-24 items-center justify-center gap-3 rounded-2xl border-2 border-primary bg-card text-lg font-semibold text-primary transition-all hover:bg-primary-soft disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground"
             >
               TIME OUT
-              <LogOut className="h-6 w-6 transition-transform group-enabled:group-hover:translate-x-1" />
+              <LogOut className="h-6 w-6" />
             </button>
           </div>
         </div>
       </Card>
+
+      {/* 🔥 NEW: Quick Actions */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <Link
+          to="/intern/reports"
+          className="group flex items-center justify-between rounded-2xl border border-border bg-card p-5 shadow-(--shadow-soft) transition-all hover:-translate-y-0.5 hover:shadow-(--shadow-elevated)"
+        >
+          <div>
+            <div className="text-sm font-semibold">Daily Report</div>
+            <div className="text-xs text-muted-foreground">Submit your daily activity report</div>
+          </div>
+
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-soft text-primary transition-transform group-hover:translate-x-1">
+            <CalendarDays className="h-5 w-5" />
+          </div>
+        </Link>
+      </div>
 
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -170,14 +190,12 @@ function InternDashboard() {
         <StatCard
           label="Rendered"
           value={fmt(summary?.rendered_hours ?? 0)}
-          hint={`of ${summary?.required_hours ?? user?.required_hours ?? 486} h required`}
           icon={<Clock className="h-5 w-5" />}
           tone="success"
         />
         <StatCard
           label="Remaining"
           value={fmt(remaining)}
-          hint={`${progress.toFixed(1)}% complete`}
           icon={<Target className="h-5 w-5" />}
           tone="warning"
         />
@@ -185,82 +203,14 @@ function InternDashboard() {
 
       {/* Progress */}
       <Card>
-        <div className="mb-3 flex items-center justify-between">
-          <div>
-            <div className="text-sm font-medium">Progress to required hours</div>
-            <div className="text-xs text-muted-foreground">
-              {fmt(summary?.rendered_hours ?? 0)} of {summary?.required_hours ?? 486} hours
-            </div>
-          </div>
-          <div className="text-2xl font-semibold tracking-tight text-primary">
-            {progress.toFixed(1)}%
-          </div>
-        </div>
         <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
-          <div
-            className="h-full rounded-full bg-linear-to-r from-primary to-[oklch(0.7_0.16_155)] transition-all duration-500"
-            style={{ width: `${progress}%` }}
-          />
+          <div className="h-full rounded-full bg-primary" style={{ width: `${progress}%` }} />
         </div>
-      </Card>
-
-      {/* Recent attendance */}
-      <Card className="p-0">
-        <div className="border-b border-border px-5 py-4">
-          <div className="text-sm font-semibold">Recent attendance</div>
-          <div className="text-xs text-muted-foreground">Your last 10 working days</div>
-        </div>
-        <AttendanceTable rows={summary?.recent ?? []} loading={loading} />
       </Card>
     </div>
   );
 }
 
 function fmt(n: number | string) {
-  return (
-    Number(n || 0)
-      .toFixed(2)
-      .replace(/\.00$/, "") + " h"
-  );
-}
-
-export function AttendanceTable({ rows, loading }: { rows: AttendanceRow[]; loading?: boolean }) {
-  if (loading) {
-    return <div className="p-8 text-center text-sm text-muted-foreground">Loading…</div>;
-  }
-  if (rows.length === 0) {
-    return (
-      <div className="p-10 text-center text-sm text-muted-foreground">
-        No attendance recorded yet.
-      </div>
-    );
-  }
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-border bg-muted/30 text-left text-xs uppercase tracking-wider text-muted-foreground">
-            <th className="px-5 py-3 font-medium">Date</th>
-            <th className="px-5 py-3 font-medium">Day</th>
-            <th className="px-5 py-3 font-medium">Time In</th>
-            <th className="px-5 py-3 font-medium">Time Out</th>
-            <th className="px-5 py-3 text-right font-medium">Hours</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <tr key={r.id} className="border-b border-border last:border-0">
-              <td className="px-5 py-3 font-medium">{r.attendance_date}</td>
-              <td className="px-5 py-3 text-muted-foreground">{r.day_name}</td>
-              <td className="px-5 py-3 font-mono">{fmtTime(r.time_in)}</td>
-              <td className="px-5 py-3 font-mono">{fmtTime(r.time_out)}</td>
-              <td className="px-5 py-3 text-right font-semibold tabular-nums">
-                {r.total_hours != null ? Number(r.total_hours).toFixed(1) : "—"}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+  return Number(n || 0).toFixed(2) + " h";
 }

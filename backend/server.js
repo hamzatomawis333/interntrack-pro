@@ -1,14 +1,20 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+
 import authRoutes from "./routes/auth.js";
-import attendanceRoutes from "./routes/attendance.js"; //
+import attendanceRoutes from "./routes/attendance.js";
+import reportRoutes from "./routes/reports.js";
+
 import { pool } from "./db.js";
 
 dotenv.config();
 
 const app = express();
 
+/* =========================
+   MIDDLEWARE (IMPORTANT)
+========================= */
 app.use(
   cors({
     origin: ["http://localhost:8080", "http://localhost:8081"],
@@ -16,26 +22,74 @@ app.use(
   }),
 );
 
-app.use(express.json());
+app.use(express.json()); // 🔥 MUST be BEFORE routes
 
+/* =========================
+   HEALTH CHECK
+========================= */
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// 🔥 AUTH ROUTES
+/* =========================
+   ROUTES
+========================= */
 app.use("/api/auth", authRoutes);
-
-// 🔥 ATTENDANCE ROUTES (FIX FOR 404 ISSUE)
 app.use("/api/attendance", attendanceRoutes);
+app.use("/api/reports", reportRoutes); // ✅ FIXED POSITION
 
-const PORT = process.env.PORT || 5000;
+/* =========================
+   REPORTS
+========================= */
+app.post("/api/reports", async (req, res) => {
+  try {
+    const userId = req.user?.id || 1; // (temporary if walang auth yet)
+    const { report_text } = req.body;
 
+    if (!report_text) {
+      return res.status(400).json({ message: "Missing fields" });
+    }
+
+    // get today's attendance
+    const [attendance] = await pool.query(
+      `SELECT id FROM attendance 
+       WHERE user_id = ? AND attendance_date = CURDATE()
+       LIMIT 1`,
+      [userId],
+    );
+
+    if (attendance.length === 0) {
+      return res.status(400).json({
+        message: "No attendance found for today",
+      });
+    }
+
+    const attendance_id = attendance[0].id;
+
+    await pool.query(
+      `INSERT INTO daily_reports (attendance_id, report_text)
+       VALUES (?, ?)`,
+      [attendance_id, report_text],
+    );
+
+    res.json({ message: "Report saved successfully" });
+  } catch (err) {
+    console.error("REPORT ERROR:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+/* =========================
+   ADMIN STATS
+========================= */
 app.get("/api/admin/stats", async (req, res) => {
   try {
     const [total] = await pool.query("SELECT COUNT(*) as count FROM users WHERE role='intern'");
 
     const [present] = await pool.query(
-      "SELECT COUNT(DISTINCT user_id) as count FROM attendance WHERE attendance_date = CURDATE() AND time_in IS NOT NULL",
+      `SELECT COUNT(DISTINCT user_id) as count 
+       FROM attendance 
+       WHERE attendance_date = CURDATE() 
+       AND time_in IS NOT NULL`,
     );
 
     const [absent] = await pool.query(
@@ -76,6 +130,9 @@ app.get("/api/admin/stats", async (req, res) => {
   }
 });
 
+/* =========================
+   ADMIN ATTENDANCE
+========================= */
 app.get("/api/admin/attendance", async (req, res) => {
   try {
     const { name = "", date = "", month = "" } = req.query;
@@ -123,6 +180,9 @@ app.get("/api/admin/attendance", async (req, res) => {
   }
 });
 
+/* =========================
+   ADMIN REPORTS
+========================= */
 app.get("/api/admin/reports", async (req, res) => {
   try {
     const [rows] = await pool.query(`
@@ -149,6 +209,9 @@ app.get("/api/admin/reports", async (req, res) => {
   }
 });
 
+/* =========================
+   ADMIN INTERNS
+========================= */
 app.get("/api/admin/interns", async (req, res) => {
   try {
     const [rows] = await pool.query(`
@@ -164,6 +227,10 @@ app.get("/api/admin/interns", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+/* =========================
+   UPDATE INTERN
+========================= */
 app.put("/api/admin/interns/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -180,6 +247,11 @@ app.put("/api/admin/interns/:id", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+/* =========================
+   START SERVER
+========================= */
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
