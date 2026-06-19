@@ -43,7 +43,7 @@ function UsersPage() {
     if (!required || required < 1) return;
     try {
       await api(`/admin/interns/${id}`, {
-        method: "PATCH",
+        method: "PUT",
         body: { required_hours: required },
       });
       toast.success("Updated");

@@ -70,7 +70,6 @@ function AttendancePage() {
             placeholder="Search by name"
           />
           <Input label="Date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-          // eslint-disable-next-line prettier/prettier
           <Input
             label="Month"
             type="month"
@@ -128,7 +127,7 @@ function AttendancePage() {
                     <td className="px-5 py-3 font-mono">{fmtTime(r.time_in)}</td>
                     <td className="px-5 py-3 font-mono">{fmtTime(r.time_out)}</td>
                     <td className="px-5 py-3 tabular-nums">
-                      {r.total_hours ? r.total_hours.toFixed(2) : "—"}
+                      {r.total_hours != null ? Number(r.total_hours).toFixed(2) : "—"}
                     </td>
                     <td className="px-5 py-3">
                       <StatusBadge status={r.status} />

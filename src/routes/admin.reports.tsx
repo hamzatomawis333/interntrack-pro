@@ -69,7 +69,7 @@ function ReportsPage() {
                       </td>
                       <td className="px-5 py-3 text-right tabular-nums">{r.required_hours}</td>
                       <td className="px-5 py-3 text-right tabular-nums font-semibold">
-                        {r.rendered_hours.toFixed(2)}
+                        {Number(r.rendered_hours ?? 0).toFixed(2)}
                       </td>
                       <td className="px-5 py-3 text-right tabular-nums">{remaining.toFixed(2)}</td>
                       <td className="px-5 py-3">

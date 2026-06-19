@@ -216,8 +216,12 @@ function InternDashboard() {
   );
 }
 
-function fmt(n: number) {
-  return n.toFixed(2).replace(/\.00$/, "") + " h";
+function fmt(n: number | string) {
+  return (
+    Number(n || 0)
+      .toFixed(2)
+      .replace(/\.00$/, "") + " h"
+  );
 }
 
 export function AttendanceTable({ rows, loading }: { rows: AttendanceRow[]; loading?: boolean }) {
@@ -251,7 +255,7 @@ export function AttendanceTable({ rows, loading }: { rows: AttendanceRow[]; load
               <td className="px-5 py-3 font-mono">{fmtTime(r.time_in)}</td>
               <td className="px-5 py-3 font-mono">{fmtTime(r.time_out)}</td>
               <td className="px-5 py-3 text-right font-semibold tabular-nums">
-                {r.total_hours ? r.total_hours.toFixed(2) : "—"}
+                {r.total_hours != null ? Number(r.total_hours).toFixed(1) : "—"}
               </td>
             </tr>
           ))}

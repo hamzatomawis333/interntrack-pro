@@ -77,7 +77,7 @@ function AdminDashboard() {
         />
         <StatCard
           label="Total rendered"
-          value={`${(stats?.total_rendered_hours ?? 0).toFixed(0)} h`}
+          value={`${Number(stats?.total_rendered_hours ?? 0).toFixed(0)} h`}
           icon={<Clock className="h-5 w-5" />}
         />
       </div>
@@ -131,7 +131,7 @@ function AdminDashboard() {
                     <td className="px-5 py-3 font-mono">{r.time_in ?? "—"}</td>
                     <td className="px-5 py-3 font-mono">{r.time_out ?? "—"}</td>
                     <td className="px-5 py-3 text-right tabular-nums">
-                      {r.total_hours ? r.total_hours.toFixed(2) : "—"}
+                      {r.total_hours != null ? Number(r.total_hours).toFixed(2) : "—"}
                     </td>
                   </tr>
                 ))}
