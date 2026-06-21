@@ -64,9 +64,6 @@ function DailyReportsPage() {
     }
   };
 
-  /* =========================
-     FILTERS
-  ========================= */
   const filtered = useMemo(() => {
     return reports.filter((r) => {
       const byName = r.fullname.toLowerCase().includes(search.toLowerCase());
