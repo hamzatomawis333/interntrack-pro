@@ -228,6 +228,75 @@ app.put("/api/admin/interns/:id", async (req, res) => {
 });
 
 /* =========================================================
+   DELETE INTERN
+========================================================= */
+app.delete("/api/admin/interns/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // optional safety check
+    await pool.query("DELETE FROM attendance WHERE user_id = ?", [id]);
+
+    await pool.query("DELETE FROM manual_attendance WHERE user_id = ?", [id]);
+
+    await pool.query("DELETE FROM users WHERE id = ? AND role='intern'", [id]);
+
+    res.json({ message: "Intern deleted successfully" });
+  } catch (err) {
+    console.error("DELETE INTERN ERROR:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* =========================================================
+   MARK DAILY REPORT AS SEEN
+========================================================= */
+app.patch("/api/admin/daily-reports/:id/seen", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await pool.query("UPDATE daily_reports SET is_seen = 1 WHERE id = ?", [id]);
+
+    res.json({ message: "Marked as seen" });
+  } catch (err) {
+    console.error("MARK SEEN ERROR:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* =========================================================
+   UNREAD DAILY REPORTS COUNT
+========================================================= */
+app.get("/api/admin/daily-reports/unread-count", async (req, res) => {
+  try {
+    const [[result]] = await pool.query(`
+      SELECT COUNT(*) AS count
+      FROM daily_reports
+      WHERE is_seen = 0
+    `);
+
+    res.json({ count: result.count });
+  } catch (err) {
+    console.error("UNREAD COUNT ERROR:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.get("/api/admin/daily-reports/unread-count", async (req, res) => {
+  try {
+    const [[result]] = await pool.query(`
+      SELECT COUNT(*) AS count
+      FROM daily_reports
+      WHERE is_seen = 0
+    `);
+
+    res.json({ count: result.count });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* =========================================================
    START SERVER
 ========================================================= */
 const PORT = process.env.PORT || 5000;

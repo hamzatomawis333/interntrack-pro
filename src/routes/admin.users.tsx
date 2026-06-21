@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { Card, Input, PageHeader } from "@/components/ui-kit";
+import { Card } from "@/components/ui-kit";
 import { toast } from "sonner";
 import { Trash2, Save } from "lucide-react";
 
@@ -40,6 +40,7 @@ function UsersPage() {
 
   const updateHours = async (id: number) => {
     const required = edits[id];
+
     if (!required || required < 1) return;
 
     try {
@@ -48,85 +49,146 @@ function UsersPage() {
         body: { required_hours: required },
       });
 
-      toast.success("Updated");
+      toast.success("Updated successfully");
       await load();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed");
+    } catch {
+      toast.error("Failed to update");
     }
   };
 
   const remove = async (id: number) => {
-    if (!confirm("Delete this intern and all their attendance? This cannot be undone.")) return;
+    if (!confirm("Delete this intern? This will also remove all related records.")) return;
 
     try {
-      await api(`/admin/interns/${id}`, { method: "DELETE" });
-      toast.success("Deleted");
+      await api(`/admin/interns/${id}`, {
+        method: "DELETE",
+      });
+
+      toast.success("Deleted successfully");
       await load();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed");
+    } catch {
+      toast.error("Failed to delete");
     }
   };
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Intern accounts"
-        description="Manage intern profiles and required hours."
-      />
+    <div className="space-y-8">
+      {/* HEADER */}
 
-      <Card className="p-0">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Intern Accounts</h1>
+
+        <p className="mt-2 text-muted-foreground">
+          Manage intern profiles and required working hours.
+        </p>
+      </div>
+
+      <Card className="overflow-hidden p-0">
+        {/* TABLE */}
+
         {loading ? (
-          <div className="p-8 text-center text-sm text-muted-foreground">Loading…</div>
+          <div className="p-12 text-center text-muted-foreground">Loading...</div>
         ) : rows.length === 0 ? (
-          <div className="p-10 text-center text-sm text-muted-foreground">
-            No intern accounts yet.
-          </div>
+          <div className="p-12 text-center text-muted-foreground">No intern accounts found</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border bg-muted/30 text-left text-xs uppercase tracking-wider text-muted-foreground">
-                  <th className="px-5 py-3 font-medium">Intern</th>
-                  <th className="px-5 py-3 font-medium">Username</th>
-                  <th className="px-5 py-3 font-medium">Required hours</th>
-                  <th className="px-5 py-3 font-medium">Joined</th>
-                  <th className="px-5 py-3 text-right font-medium">Actions</th>
+                <tr className="border-b bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
+                  <th className="px-6 py-4 text-left">Intern</th>
+
+                  <th className="px-6 py-4 text-left">Username</th>
+
+                  <th className="px-6 py-4 text-left">Required Hours</th>
+
+                  <th className="px-6 py-4 text-left">Joined</th>
+
+                  <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
 
               <tbody>
                 {rows.map((r) => (
-                  <tr key={r.id} className="border-b border-border last:border-0">
-                    <td className="px-5 py-3 font-medium text-foreground">{r.fullname}</td>
+                  <tr
+                    key={r.id}
+                    className="
+border-b
 
-                    <td className="px-5 py-3 text-muted-foreground">@{r.username}</td>
+hover:bg-slate-50
 
-                    {/* INPUT FIX (VISIBILITY + CONTRAST) */}
-                    <td className="px-5 py-3">
-                      <Input
+transition
+"
+                  >
+                    <td className="px-6 py-4 font-medium">{r.fullname}</td>
+
+                    <td className="px-6 py-4 text-muted-foreground">@{r.username}</td>
+
+                    <td className="px-6 py-4">
+                      <input
                         type="number"
                         min={1}
                         defaultValue={r.required_hours}
-                        className="h-9 w-28 text-black placeholder:text-gray-400"
                         onChange={(e) =>
                           setEdits((p) => ({
                             ...p,
-                            [r.id]: parseInt(e.target.value || "0", 10),
+                            [r.id]: Number(e.target.value),
                           }))
                         }
+                        className="
+h-9
+
+w-28
+
+rounded-md
+
+border
+border-input
+
+bg-card
+
+px-3
+
+text-sm
+
+outline-none
+
+focus:border-primary
+"
                       />
                     </td>
 
-                    <td className="px-5 py-3 text-muted-foreground">
+                    <td className="px-6 py-4 text-muted-foreground">
                       {new Date(r.created_at).toLocaleDateString()}
                     </td>
 
-                    {/* ACTION BUTTONS FIX */}
-                    <td className="px-5 py-3">
+                    <td className="px-6 py-4">
                       <div className="flex justify-end gap-2">
                         <button
                           onClick={() => updateHours(r.id)}
-                          className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-medium text-white hover:bg-primary/90 transition"
+                          className="
+inline-flex
+
+items-center
+
+gap-1.5
+
+rounded-md
+
+bg-cyan-600
+
+px-3
+py-2
+
+text-xs
+
+font-medium
+
+text-white
+
+hover:bg-cyan-700
+
+transition
+"
                         >
                           <Save className="h-3.5 w-3.5" />
                           Save
@@ -134,7 +196,34 @@ function UsersPage() {
 
                         <button
                           onClick={() => remove(r.id)}
-                          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border px-3 text-xs font-medium text-destructive hover:bg-destructive/10 transition"
+                          className="
+inline-flex
+
+items-center
+
+gap-1.5
+
+rounded-md
+
+border
+
+border-red-200
+
+bg-red-50
+
+px-3
+py-2
+
+text-xs
+
+font-medium
+
+text-red-600
+
+hover:bg-red-100
+
+transition
+"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                           Delete
