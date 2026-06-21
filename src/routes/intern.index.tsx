@@ -69,6 +69,9 @@ function InternDashboard() {
 
   const progress = useMemo(() => {
     if (!summary) return 0;
+
+    if (!summary.required_hours) return 0;
+
     return Math.min(100, (summary.rendered_hours / summary.required_hours) * 100);
   }, [summary]);
 
@@ -98,10 +101,22 @@ function InternDashboard() {
     }
   };
 
+  const sessionHours = useMemo(() => {
+    if (!today?.time_in) return 0;
+
+    const start = new Date(`${today.attendance_date}T${today.time_in}`);
+
+    const end = today.time_out ? new Date(`${today.attendance_date}T${today.time_out}`) : now;
+
+    return Math.max(0, (end.getTime() - start.getTime()) / 1000 / 60 / 60);
+  }, [today, now]);
+
+  const todayProgress = Math.min(100, (sessionHours / 8) * 100);
+
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`Welcome, ${user?.fullname.split(" ")[0]} 👋`}
+        title={`Welcome, ${user?.fullname?.split(" ")[0] ?? "Intern"} 👋`}
         description={fmtDateLong(now)}
       />
 
@@ -185,9 +200,138 @@ function InternDashboard() {
       </div>
 
       {/* Progress */}
-      <Card>
-        <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
-          <div className="h-full rounded-full bg-primary" style={{ width: `${progress}%` }} />
+      <Card className="p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold">Internship Progress</h3>
+
+            <p className="text-sm text-muted-foreground">
+              {summary?.rendered_hours ?? 0} / {summary?.required_hours ?? 0} hours
+            </p>
+          </div>
+
+          <div className="text-2xl font-bold text-primary">{Math.round(progress)}%</div>
+        </div>
+
+        <div className="mt-6 h-4 overflow-hidden rounded-full bg-muted">
+          <div
+            className="
+h-full
+
+rounded-full
+
+bg-gradient-to-r
+from-cyan-500
+to-blue-500
+
+transition-all
+duration-700
+"
+            style={{
+              width: `${progress}%`,
+            }}
+          />
+        </div>
+
+        <div className="mt-4 text-sm text-muted-foreground">
+          Remaining:
+          <span className="ml-2 font-medium">{fmt(remaining)}</span>
+        </div>
+      </Card>
+
+      <Card className="p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-lg font-semibold">Today's Session</div>
+
+            <div className="text-sm text-muted-foreground">
+              {today?.time_in ? `Started ${fmtTime(today.time_in)}` : "Not started"}
+            </div>
+          </div>
+
+          <div className="text-3xl">⏱️</div>
+        </div>
+
+        <div className="mt-6">
+          <div className="text-4xl font-bold">{sessionHours.toFixed(1)}h</div>
+
+          <div className="mt-1 text-sm text-muted-foreground">Target: 8 hours</div>
+        </div>
+
+        <div className="mt-6 h-4 overflow-hidden rounded-full bg-muted">
+          <div
+            className="
+h-full
+
+rounded-full
+
+bg-gradient-to-r
+from-green-500
+to-cyan-500
+
+transition-all
+duration-1000
+"
+            style={{
+              width: `${todayProgress}%`,
+            }}
+          />
+        </div>
+
+        <div className="mt-3 text-sm">{Math.round(todayProgress)}% complete</div>
+      </Card>
+
+      <Card className="p-6">
+        <div className="mb-5 flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Recent Attendance</h3>
+
+          <Link
+            to="/intern/history"
+            className="
+text-sm
+
+text-primary
+
+hover:underline
+"
+          >
+            View all
+          </Link>
+        </div>
+
+        <div className="space-y-3">
+          {summary?.recent?.length ? (
+            summary.recent.slice(0, 5).map((r) => (
+              <div
+                key={r.id}
+                className="
+flex
+
+items-center
+justify-between
+
+rounded-xl
+
+border
+
+bg-muted/30
+
+px-4
+py-3
+"
+              >
+                <div>
+                  <div className="font-medium">{r.day_name}</div>
+
+                  <div className="text-xs text-muted-foreground">{r.attendance_date}</div>
+                </div>
+
+                <div className="text-sm font-semibold">{fmt(r.total_hours ?? 0)}</div>
+              </div>
+            ))
+          ) : (
+            <div className="text-sm text-muted-foreground">No recent attendance</div>
+          )}
         </div>
       </Card>
     </div>

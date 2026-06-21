@@ -146,47 +146,6 @@ text-muted-foreground
               Monitor attendance, reports, rendered hours, and intern activity.
             </p>
           </div>
-
-          <Card
-            className="
-px-8
-py-6
-"
-          >
-            <div
-              className="
-text-sm
-
-text-muted-foreground
-"
-            >
-              Active Today
-            </div>
-
-            <div
-              className="
-mt-2
-
-text-5xl
-
-font-bold
-"
-            >
-              {stats?.present_today ?? "—"}
-            </div>
-
-            <div
-              className="
-mt-2
-
-text-sm
-
-text-cyan-700
-"
-            >
-              interns currently present
-            </div>
-          </Card>
         </div>
       </div>
 

@@ -54,5 +54,29 @@ router.get("/all", async (req, res) => {
     });
   }
 });
+router.get("/my", requireAuth(["intern"]), async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const [rows] = await pool.query(
+      `
+      SELECT
+        id,
+        report_text,
+        report_date,
+        created_at
+      FROM daily_reports
+      WHERE user_id = ?
+      ORDER BY report_date DESC, created_at DESC
+      `,
+      [userId],
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error("REPORTS MY ERROR:", err);
+    res.status(500).json({ message: "Failed to load reports" });
+  }
+});
 
 export default router;

@@ -28,6 +28,8 @@ function HistoryPage() {
   const [timeIn, setTimeIn] = useState("08:00");
   const [timeOut, setTimeOut] = useState("17:00");
   const [weekly, setWeekly] = useState<{ day: string; hours: number }[]>([]);
+  const [search, setSearch] = useState("");
+  const [sourceFilter, setSourceFilter] = useState("all");
 
   const load = async () => {
     try {
@@ -66,6 +68,15 @@ function HistoryPage() {
   };
 
   const weeklyTotal = (weekly || []).reduce((acc, w) => acc + Number(w.hours || 0), 0);
+  const filteredRows = rows.filter((r) => {
+    const matchSearch =
+      r.attendance_date.toLowerCase().includes(search.toLowerCase()) ||
+      r.day_name.toLowerCase().includes(search.toLowerCase());
+
+    const matchSource = sourceFilter === "all" || r.source === sourceFilter;
+
+    return matchSearch && matchSource;
+  });
 
   return (
     <div className="space-y-6">
@@ -148,6 +159,35 @@ function HistoryPage() {
         </div>
       </Card>
 
+      <Card>
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <Input
+            placeholder="Search date or day..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="md:max-w-sm"
+          />
+
+          <select
+            value={sourceFilter}
+            onChange={(e) => setSourceFilter(e.target.value)}
+            className="
+      h-10
+      rounded-md
+      border
+      px-3
+      bg-card
+      "
+          >
+            <option value="all">All Sources</option>
+            <option value="auto">Auto</option>
+            <option value="manual">Manual</option>
+          </select>
+
+          <div className="text-sm text-muted-foreground">{filteredRows.length} entries</div>
+        </div>
+      </Card>
+
       {/* TABLE (unchanged except small safety fix) */}
       <Card className="p-0">
         <div className="border-b border-border px-5 py-4 text-sm font-semibold">All entries</div>
@@ -171,7 +211,7 @@ function HistoryPage() {
               </thead>
 
               <tbody>
-                {rows.map((r) => (
+                {filteredRows.map((r) => (
                   <tr key={`${r.source}-${r.id}`} className="border-b border-border last:border-0">
                     <td className="px-5 py-3 font-medium">{r.attendance_date}</td>
                     <td className="px-5 py-3 text-muted-foreground">{r.day_name}</td>
