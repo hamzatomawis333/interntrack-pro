@@ -5,7 +5,6 @@ import { api } from "@/lib/api";
 import { Button, Input } from "@/components/ui-kit";
 import { Clock3, ShieldCheck, GraduationCap } from "lucide-react";
 import { toast } from "sonner";
-import bcrypt from "bcrypt";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
@@ -19,8 +18,6 @@ function AuthPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
-
-  // ✅ NEW: admin prompt state
   const [showAdminPrompt, setShowAdminPrompt] = useState(false);
 
   useEffect(() => {
@@ -34,7 +31,6 @@ function AuthPage() {
     if (user.role === "admin") {
       const seen = localStorage.getItem("admin_prompt_seen");
 
-      // ONLY redirect if prompt already handled
       if (seen === "true") {
         navigate({ to: "/admin", replace: true });
       }
@@ -58,7 +54,6 @@ function AuthPage() {
 
       login(res.user, res.token);
 
-      // ADMIN FLOW
       if (res.user.role === "admin") {
         const seen = localStorage.getItem("admin_prompt_seen");
 
@@ -69,7 +64,6 @@ function AuthPage() {
         }
       }
 
-      // INTERN FLOW
       if (res.user.role === "intern") {
         navigate({ to: "/intern", replace: true });
       }
@@ -81,53 +75,82 @@ function AuthPage() {
   }
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      {/* HERO */}
-      <div className="relative hidden overflow-hidden bg-linear-to-br from-primary to-[oklch(0.5_0.14_175)] p-12 text-primary-foreground lg:flex lg:flex-col lg:justify-between">
+    <div
+      className="relative grid min-h-screen lg:grid-cols-2 overflow-hidden bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: "url('/ictologo2.jpg')" }}
+    >
+      {/* CINEMATIC OVERLAY */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/55 to-black/80" />
+
+      {/* FLOATING GLOW EFFECTS */}
+      <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-blue-500/20 blur-3xl animate-pulse" />
+      <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-indigo-500/20 blur-3xl animate-pulse" />
+
+      {/* HERO SIDE */}
+      <div className="relative hidden lg:flex flex-col justify-between p-12 text-white">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 backdrop-blur">
-            <Clock3 className="h-5 w-5" />
+          <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-white/10 border border-white/20 backdrop-blur">
+            <Clock3 className="h-5 w-5 text-blue-200" />
           </div>
-          <span className="text-lg font-semibold">OJT Tracker</span>
+
+          <div>
+            <div className="text-lg font-bold tracking-wide">ICTO System</div>
+            <div className="text-sm text-white/60">
+              Information & Communication Technology Office
+            </div>
+          </div>
         </div>
 
         <div>
           <h1 className="text-4xl font-semibold leading-tight tracking-tight">
-            Track every hour of your on-the-job training.
+            Intern Attendance & Monitoring System
           </h1>
 
-          <p className="mt-4 max-w-md text-white/80">
-            A clean, dependable attendance system for interns and supervisors.
+          <p className="mt-4 max-w-md text-white/70 leading-relaxed">
+            Track attendance, monitor rendered hours, submit reports, and manage interns in one
+            system.
           </p>
 
           <div className="mt-10 grid grid-cols-3 gap-4 text-sm">
-            <Stat label="Default hours" value="486" />
-            <Stat label="Work days" value="Mon–Fri" />
-            <Stat label="Roles" value="2" />
+            <div className="rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur-xl shadow-lg hover:bg-white/15 transition-all">
+              <div className="text-xs text-white/60 tracking-wide">Work days</div>
+
+              <div className="text-white font-semibold mt-2 text-lg tracking-tight">
+                Monday - Thursday
+              </div>
+            </div>
           </div>
         </div>
 
-        <p className="text-xs text-white/60">© {new Date().getFullYear()} OJT Tracker</p>
+        <p className="text-xs text-white/40">© {new Date().getFullYear()} ICTO Internship System</p>
       </div>
 
-      {/* FORM */}
-      <div className="flex items-center justify-center px-4 py-10 sm:px-10">
-        <div className="w-full max-w-md">
-          <h2 className="text-2xl font-semibold tracking-tight">Sign in to your account</h2>
+      {/* LOGIN SIDE */}
+      <div className="relative flex items-center justify-center px-6 sm:px-10">
+        <div
+          className="
+            w-full max-w-md
+            rounded-3xl
+            border border-white/15
+            bg-white/10
+            backdrop-blur-2xl
+            p-9
+            text-white
+            shadow-[0_40px_120px_rgba(0,0,0,0.65)]
+          "
+        >
+          <h2 className="text-3xl font-semibold tracking-tight">Welcome back</h2>
 
-          <p className="mt-1 text-sm text-muted-foreground">
-            Choose your role and enter your credentials.
-          </p>
+          <p className="mt-1 text-sm text-white/60">Sign in to continue your dashboard</p>
 
           {/* ROLE SWITCH */}
-          <div className="mt-6 grid grid-cols-2 gap-2 rounded-2xl border border-border bg-muted/40 p-1.5">
+          <div className="mt-6 grid grid-cols-2 gap-2 rounded-2xl bg-white/10 border border-white/10 p-1.5">
             <RoleTab
               active={role === "intern"}
               onClick={() => setRole("intern")}
               icon={<GraduationCap className="h-4 w-4" />}
               label="Intern"
             />
-
             <RoleTab
               active={role === "admin"}
               onClick={() => setRole("admin")}
@@ -142,8 +165,9 @@ function AuthPage() {
               label="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder={role === "admin" ? "admin" : "your username"}
+              placeholder="Enter username"
               required
+              className="text-black"
             />
 
             <Input
@@ -151,19 +175,29 @@ function AuthPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder="Enter password"
               required
+              className="text-black"
             />
 
-            <Button type="submit" className="w-full" disabled={submitting}>
-              {submitting ? "Signing in…" : `Sign in as ${role}`}
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="
+                h-12 w-full rounded-2xl
+                bg-gradient-to-r from-[#0B1F3B] to-[#1E3A8A]
+                text-white font-medium
+                transition-all hover:scale-[1.02] hover:shadow-2xl
+              "
+            >
+              {submitting ? "Signing in..." : `Sign in as ${role}`}
             </Button>
           </form>
 
           {role === "intern" && (
-            <p className="mt-6 text-center text-sm text-muted-foreground">
+            <p className="mt-6 text-center text-sm text-white/60">
               New intern?{" "}
-              <Link to="/register" className="text-primary hover:underline">
+              <Link to="/register" className="text-blue-200 hover:text-white underline">
                 Create account
               </Link>
             </p>
@@ -171,7 +205,7 @@ function AuthPage() {
         </div>
       </div>
 
-      {/* ✅ ADMIN PROMPT MODAL */}
+      {/* ADMIN MODAL */}
       {showAdminPrompt && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50">
           <div className="w-[320px] rounded-xl bg-white p-6 text-center shadow-lg">
@@ -183,17 +217,16 @@ function AuthPage() {
 
             <div className="mt-4 flex justify-center gap-2">
               <button
-                className="rounded bg-green-500 px-4 py-2 text-white"
+                className="rounded-xl bg-[#0B1F3B] px-3 py-2 text-white"
                 onClick={() => navigate({ to: "/change-password" })}
               >
                 Yes
               </button>
 
               <button
+                className="rounded-xl border px-3 py-2"
                 onClick={() => {
-                  console.log("SKIP CLICKED");
                   localStorage.setItem("admin_prompt_seen", "true");
-                  setShowAdminPrompt(false);
                   setShowAdminPrompt(false);
                   navigate({ to: "/admin", replace: true });
                 }}
@@ -208,35 +241,30 @@ function AuthPage() {
   );
 }
 
-/* helpers */
-type RoleTabProps = {
+/* ===== COMPONENT ===== */
+
+function RoleTab({
+  active,
+  onClick,
+  icon,
+  label,
+}: {
   active: boolean;
   onClick: () => void;
   icon: React.ReactNode;
   label: string;
-};
-
-function RoleTab({ active, onClick, icon, label }: RoleTabProps) {
+}) {
   return (
     <button
       type="button"
       onClick={onClick}
       className={
-        "flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium " +
-        (active ? "bg-card text-primary" : "text-muted-foreground")
+        "flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition " +
+        (active ? "bg-white text-[#0B1F3B]" : "text-white/70 hover:text-white")
       }
     >
       {icon}
       {label}
     </button>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-white/15 bg-white/5 p-3">
-      <div className="text-xs text-white/70">{label}</div>
-      <div className="text-lg font-semibold">{value}</div>
-    </div>
   );
 }

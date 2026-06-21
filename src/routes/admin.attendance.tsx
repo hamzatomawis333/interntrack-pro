@@ -34,6 +34,7 @@ function AttendancePage() {
       if (name) q.set("name", name);
       if (date) q.set("date", date);
       if (month) q.set("month", month);
+
       const data = await api<Row[]>(`/admin/attendance?${q.toString()}`);
       setRows(data);
     } catch (err) {
@@ -45,7 +46,6 @@ function AttendancePage() {
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -55,6 +55,7 @@ function AttendancePage() {
         description="Review and filter all intern attendance records."
       />
 
+      {/* FILTER CARD */}
       <Card>
         <form
           onSubmit={(e) => {
@@ -68,21 +69,34 @@ function AttendancePage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Search by name"
+            className="text-black placeholder:text-gray-400"
           />
-          <Input label="Date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+
+          <Input
+            label="Date"
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="text-black"
+          />
+
           <Input
             label="Month"
             type="month"
             value={month}
             onChange={(e) => setMonth(e.target.value)}
+            className="text-black"
           />
+
+          {/* BUTTON FIX */}
           <div className="flex items-end gap-2">
             <button
               type="submit"
-              className="h-11 flex-1 rounded-xl bg-primary text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              className="h-11 flex-1 rounded-xl bg-primary px-4 text-sm font-medium text-white hover:bg-primary/90 transition"
             >
               Apply
             </button>
+
             <button
               type="button"
               onClick={() => {
@@ -91,7 +105,7 @@ function AttendancePage() {
                 setMonth("");
                 setTimeout(load, 0);
               }}
-              className="h-11 rounded-xl border border-border px-4 text-sm font-medium text-muted-foreground hover:bg-muted"
+              className="h-11 rounded-xl border border-border px-4 text-sm font-medium text-foreground hover:bg-muted transition"
             >
               Reset
             </button>
@@ -99,6 +113,7 @@ function AttendancePage() {
         </form>
       </Card>
 
+      {/* TABLE */}
       <Card className="p-0">
         {loading ? (
           <div className="p-8 text-center text-sm text-muted-foreground">Loading…</div>
@@ -118,17 +133,24 @@ function AttendancePage() {
                   <th className="px-5 py-3 font-medium">Status</th>
                 </tr>
               </thead>
+
               <tbody>
                 {rows.map((r) => (
                   <tr key={r.id} className="border-b border-border last:border-0">
-                    <td className="px-5 py-3 font-medium">{r.fullname}</td>
+                    <td className="px-5 py-3 font-medium text-foreground">{r.fullname}</td>
+
                     <td className="px-5 py-3 text-muted-foreground">{r.attendance_date}</td>
+
                     <td className="px-5 py-3 text-muted-foreground">{r.day_name}</td>
+
                     <td className="px-5 py-3 font-mono">{fmtTime(r.time_in)}</td>
+
                     <td className="px-5 py-3 font-mono">{fmtTime(r.time_out)}</td>
+
                     <td className="px-5 py-3 tabular-nums">
                       {r.total_hours != null ? Number(r.total_hours).toFixed(2) : "—"}
                     </td>
+
                     <td className="px-5 py-3">
                       <StatusBadge status={r.status} />
                     </td>
@@ -143,6 +165,7 @@ function AttendancePage() {
   );
 }
 
+/* STATUS BADGE (UNCHANGED BUT SAFE) */
 function StatusBadge({ status }: { status: string }) {
   const cls =
     status === "present"
@@ -150,6 +173,7 @@ function StatusBadge({ status }: { status: string }) {
       : status === "incomplete"
         ? "bg-[oklch(0.95_0.08_75)] text-[oklch(0.45_0.12_75)]"
         : "bg-[oklch(0.95_0.06_25)] text-[oklch(0.5_0.18_25)]";
+
   return (
     <span className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${cls}`}>
       {status}

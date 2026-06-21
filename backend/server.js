@@ -1,19 +1,19 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import { pool } from "./db.js";
 
 import authRoutes from "./routes/auth.js";
 import attendanceRoutes from "./routes/attendance.js";
 import reportRoutes from "./routes/reports.js";
-
-import { pool } from "./db.js";
+import adminDailyReportsRoutes from "./routes/adminDailyReports.js";
 
 dotenv.config();
 
 const app = express();
 
 /* =========================
-   MIDDLEWARE (IMPORTANT)
+   MIDDLEWARE
 ========================= */
 app.use(
   cors({
@@ -22,10 +22,10 @@ app.use(
   }),
 );
 
-app.use(express.json()); // 🔥 MUST be BEFORE routes
+app.use(express.json());
 
 /* =========================
-   HEALTH CHECK
+   HEALTH
 ========================= */
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
@@ -36,221 +36,200 @@ app.get("/api/health", (req, res) => {
 ========================= */
 app.use("/api/auth", authRoutes);
 app.use("/api/attendance", attendanceRoutes);
-app.use("/api/reports", reportRoutes); // ✅ FIXED POSITION
+app.use("/api/reports", reportRoutes);
+app.use("/api/admin/daily-reports", adminDailyReportsRoutes);
 
-/* =========================
-   REPORTS
-========================= */
-app.post("/api/reports", async (req, res) => {
-  try {
-    const userId = req.user?.id || 1; // (temporary if walang auth yet)
-    const { report_text } = req.body;
-
-    if (!report_text) {
-      return res.status(400).json({ message: "Missing fields" });
-    }
-
-    // get today's attendance
-    const [attendance] = await pool.query(
-      `SELECT id FROM attendance 
-       WHERE user_id = ? AND attendance_date = CURDATE()
-       LIMIT 1`,
-      [userId],
-    );
-
-    if (attendance.length === 0) {
-      return res.status(400).json({
-        message: "No attendance found for today",
-      });
-    }
-
-    const attendance_id = attendance[0].id;
-
-    await pool.query(
-      `INSERT INTO daily_reports (attendance_id, report_text)
-       VALUES (?, ?)`,
-      [attendance_id, report_text],
-    );
-
-    res.json({ message: "Report saved successfully" });
-  } catch (err) {
-    console.error("REPORT ERROR:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-/* =========================
-   ADMIN STATS
-========================= */
+/* =========================================================
+   ADMIN STATS (FIXED - includes manual attendance)
+========================================================= */
 app.get("/api/admin/stats", async (req, res) => {
   try {
-    const [total] = await pool.query("SELECT COUNT(*) as count FROM users WHERE role='intern'");
+    const today = new Date().toISOString().slice(0, 10);
 
-    const [present] = await pool.query(
-      `SELECT COUNT(DISTINCT user_id) as count 
-       FROM attendance 
-       WHERE attendance_date = CURDATE() 
-       AND time_in IS NOT NULL`,
+    const [[total]] = await pool.query("SELECT COUNT(*) AS count FROM users WHERE role='intern'");
+
+    const [[present]] = await pool.query(
+      `SELECT COUNT(DISTINCT user_id) AS count
+       FROM attendance
+       WHERE attendance_date = ? AND time_in IS NOT NULL`,
+      [today],
     );
 
-    const [absent] = await pool.query(
-      `SELECT COUNT(*) as count FROM users 
-       WHERE role='intern' 
+    const [[hours]] = await pool.query(
+      `SELECT
+        COALESCE((SELECT SUM(total_hours) FROM attendance),0)
+        +
+        COALESCE((SELECT SUM(hours) FROM manual_attendance),0)
+       AS total`,
+    );
+
+    const [[absent]] = await pool.query(
+      `SELECT COUNT(*) AS count
+       FROM users
+       WHERE role='intern'
        AND id NOT IN (
-         SELECT DISTINCT user_id 
-         FROM attendance 
-         WHERE attendance_date = CURDATE()
+         SELECT DISTINCT user_id
+         FROM attendance
+         WHERE attendance_date = ?
        )`,
-    );
-
-    const [hours] = await pool.query(
-      "SELECT COALESCE(SUM(total_hours),0) as total FROM attendance",
+      [today],
     );
 
     const [recent] = await pool.query(`
       SELECT a.id, u.fullname, a.attendance_date, a.time_in, a.time_out, a.total_hours
       FROM attendance a
       JOIN users u ON u.id = a.user_id
-      ORDER BY a.attendance_date DESC
+      ORDER BY a.attendance_date DESC, a.id DESC
       LIMIT 10
     `);
 
     res.json({
-      total_interns: total[0].count,
-      present_today: present[0].count,
-      absent_today: absent[0].count,
-      total_rendered_hours: hours[0].total,
+      total_interns: total.count,
+      present_today: present.count,
+      absent_today: absent.count,
+      total_rendered_hours: Number(hours.total),
       recent,
     });
   } catch (err) {
-    console.error("🔥 ADMIN STATS ERROR:", err);
-    res.status(500).json({
-      message: "Server error",
-      error: err.message,
-    });
+    console.error("ADMIN STATS ERROR:", err);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
-/* =========================
-   ADMIN ATTENDANCE
-========================= */
+/* =========================================================
+   ADMIN ATTENDANCE (🔥 FIXED - includes manual attendance)
+========================================================= */
 app.get("/api/admin/attendance", async (req, res) => {
   try {
     const { name = "", date = "", month = "" } = req.query;
 
-    let query = `
-      SELECT 
+    const [rows] = await pool.query(
+      `
+      SELECT
         a.id,
         u.fullname,
-        a.attendance_date,
+        a.attendance_date AS date,
         a.day_name,
         a.time_in,
         a.time_out,
         a.total_hours,
-        a.status
+        a.status,
+        'auto' AS source
       FROM attendance a
       JOIN users u ON u.id = a.user_id
-      WHERE 1=1
-    `;
 
-    const params = [];
+      UNION ALL
+
+      SELECT
+        m.id,
+        u.fullname,
+        m.date AS date,
+        DAYNAME(m.date) AS day_name,
+        m.time_in,
+        m.time_out,
+        m.hours AS total_hours,
+        'present' AS status,
+        'manual' AS source
+      FROM manual_attendance m
+      JOIN users u ON u.id = m.user_id
+
+      ORDER BY date DESC
+      `,
+    );
+
+    let filtered = rows;
 
     if (name) {
-      query += " AND u.fullname LIKE ?";
-      params.push(`%${name}%`);
+      filtered = filtered.filter((r) => r.fullname.toLowerCase().includes(name.toLowerCase()));
     }
 
     if (date) {
-      query += " AND a.attendance_date = ?";
-      params.push(date);
+      filtered = filtered.filter((r) => r.date === date);
     }
 
     if (month) {
-      query += " AND DATE_FORMAT(a.attendance_date, '%Y-%m') = ?";
-      params.push(month);
+      filtered = filtered.filter((r) => r.date.startsWith(month));
     }
 
-    query += " ORDER BY a.attendance_date DESC";
-
-    const [rows] = await pool.query(query, params);
-
-    res.json(rows);
+    res.json(filtered);
   } catch (err) {
     console.error("ADMIN ATTENDANCE ERROR:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-/* =========================
-   ADMIN REPORTS
-========================= */
+/* =========================================================
+   ADMIN REPORTS (FIXED - includes manual attendance)
+========================================================= */
 app.get("/api/admin/reports", async (req, res) => {
   try {
     const [rows] = await pool.query(`
-      SELECT 
+      SELECT
         u.id,
         u.fullname,
+        u.username,
         u.required_hours,
-        COALESCE(SUM(a.total_hours), 0) AS rendered_hours
+        COALESCE((SELECT SUM(total_hours) FROM attendance WHERE user_id = u.id),0)
+        +
+        COALESCE((SELECT SUM(hours) FROM manual_attendance WHERE user_id = u.id),0)
+        AS rendered_hours
       FROM users u
-      LEFT JOIN attendance a ON a.user_id = u.id
-      WHERE u.role = 'intern'
-      GROUP BY u.id
+      WHERE u.role='intern'
     `);
 
-    const formatted = rows.map((r) => ({
-      ...r,
-      remaining_hours: Math.max(0, r.required_hours - r.rendered_hours),
-    }));
-
-    res.json(formatted);
+    res.json(
+      rows.map((r) => ({
+        ...r,
+        rendered_hours: Number(r.rendered_hours),
+      })),
+    );
   } catch (err) {
     console.error("ADMIN REPORTS ERROR:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-/* =========================
+/* =========================================================
    ADMIN INTERNS
-========================= */
+========================================================= */
 app.get("/api/admin/interns", async (req, res) => {
   try {
     const [rows] = await pool.query(`
       SELECT id, fullname, username, required_hours, created_at
       FROM users
-      WHERE role = 'intern'
+      WHERE role='intern'
       ORDER BY created_at DESC
     `);
 
     res.json(rows);
   } catch (err) {
-    console.error("INTERN LIST ERROR:", err);
+    console.error("INTERN ERROR:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-/* =========================
+/* =========================================================
    UPDATE INTERN
-========================= */
+========================================================= */
 app.put("/api/admin/interns/:id", async (req, res) => {
   try {
-    const { id } = req.params;
     const { required_hours } = req.body;
 
-    await pool.query("UPDATE users SET required_hours = ? WHERE id = ? AND role = 'intern'", [
+    await pool.query("UPDATE users SET required_hours=? WHERE id=? AND role='intern'", [
       required_hours,
-      id,
+      req.params.id,
     ]);
 
-    res.json({ message: "Intern updated successfully" });
+    res.json({ message: "Updated" });
   } catch (err) {
-    console.error("UPDATE INTERN ERROR:", err);
+    console.error("UPDATE ERROR:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-/* =========================
+/* =========================================================
    START SERVER
-========================= */
+========================================================= */
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {

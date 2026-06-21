@@ -41,11 +41,13 @@ function UsersPage() {
   const updateHours = async (id: number) => {
     const required = edits[id];
     if (!required || required < 1) return;
+
     try {
       await api(`/admin/interns/${id}`, {
         method: "PUT",
         body: { required_hours: required },
       });
+
       toast.success("Updated");
       await load();
     } catch (err) {
@@ -55,6 +57,7 @@ function UsersPage() {
 
   const remove = async (id: number) => {
     if (!confirm("Delete this intern and all their attendance? This cannot be undone.")) return;
+
     try {
       await api(`/admin/interns/${id}`, { method: "DELETE" });
       toast.success("Deleted");
@@ -90,38 +93,51 @@ function UsersPage() {
                   <th className="px-5 py-3 text-right font-medium">Actions</th>
                 </tr>
               </thead>
+
               <tbody>
                 {rows.map((r) => (
                   <tr key={r.id} className="border-b border-border last:border-0">
-                    <td className="px-5 py-3 font-medium">{r.fullname}</td>
+                    <td className="px-5 py-3 font-medium text-foreground">{r.fullname}</td>
+
                     <td className="px-5 py-3 text-muted-foreground">@{r.username}</td>
+
+                    {/* INPUT FIX (VISIBILITY + CONTRAST) */}
                     <td className="px-5 py-3">
                       <Input
                         type="number"
                         min={1}
                         defaultValue={r.required_hours}
-                        className="h-9!-w-28"
+                        className="h-9 w-28 text-black placeholder:text-gray-400"
                         onChange={(e) =>
-                          setEdits((p) => ({ ...p, [r.id]: parseInt(e.target.value || "0", 10) }))
+                          setEdits((p) => ({
+                            ...p,
+                            [r.id]: parseInt(e.target.value || "0", 10),
+                          }))
                         }
                       />
                     </td>
+
                     <td className="px-5 py-3 text-muted-foreground">
                       {new Date(r.created_at).toLocaleDateString()}
                     </td>
+
+                    {/* ACTION BUTTONS FIX */}
                     <td className="px-5 py-3">
                       <div className="flex justify-end gap-2">
                         <button
                           onClick={() => updateHours(r.id)}
-                          className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-medium text-primary-foreground hover:bg-primary/90"
+                          className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-medium text-white hover:bg-primary/90 transition"
                         >
-                          <Save className="h-3.5 w-3.5" /> Save
+                          <Save className="h-3.5 w-3.5" />
+                          Save
                         </button>
+
                         <button
                           onClick={() => remove(r.id)}
-                          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border px-3 text-xs font-medium text-destructive hover:bg-destructive/10"
+                          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border px-3 text-xs font-medium text-destructive hover:bg-destructive/10 transition"
                         >
-                          <Trash2 className="h-3.5 w-3.5" /> Delete
+                          <Trash2 className="h-3.5 w-3.5" />
+                          Delete
                         </button>
                       </div>
                     </td>

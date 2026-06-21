@@ -29,4 +29,30 @@ router.post("/", requireAuth(), async (req, res) => {
   }
 });
 
+router.get("/all", async (req, res) => {
+  try {
+    const [rows] = await pool.query(`
+      SELECT
+        dr.id,
+        dr.report_text,
+        dr.report_date,
+        dr.created_at,
+        u.fullname
+      FROM daily_reports dr
+      JOIN users u
+      ON u.id = dr.user_id
+      ORDER BY dr.report_date DESC, dr.created_at DESC
+    `);
+
+    res.json(rows);
+  } catch (err) {
+    console.error("FETCH REPORTS ERROR:", err);
+
+    res.status(500).json({
+      message: "Server error",
+      error: err.message,
+    });
+  }
+});
+
 export default router;

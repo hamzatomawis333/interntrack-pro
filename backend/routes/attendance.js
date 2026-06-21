@@ -100,7 +100,7 @@ router.post("/time-out", requireAuth(["intern"]), async (req, res) => {
   res.json({ message: "Time out recorded", time: t.time, total_hours: hours });
 });
 
-/* ================= SUMMARY (FIXED) ================= */
+/* ================= SUMMARY ================= */
 router.get("/summary", requireAuth(), async (req, res) => {
   try {
     const t = todayParts();
@@ -138,12 +138,8 @@ router.get("/summary", requireAuth(), async (req, res) => {
 
     const [[rendered]] = await pool.query(
       `SELECT 
-        COALESCE(
-          (SELECT SUM(total_hours) FROM attendance WHERE user_id = ?), 0
-        ) +
-        COALESCE(
-          (SELECT SUM(hours) FROM manual_attendance WHERE user_id = ?), 0
-        ) AS h`,
+        COALESCE((SELECT SUM(total_hours) FROM attendance WHERE user_id = ?), 0) +
+        COALESCE((SELECT SUM(hours) FROM manual_attendance WHERE user_id = ?), 0) AS h`,
       [userId, userId],
     );
 
@@ -267,6 +263,50 @@ router.get("/calendar", requireAuth(["intern"]), async (req, res) => {
   }));
 
   res.json(out);
+});
+
+/* ================= ADMIN ATTENDANCE (FIXED SAFE VERSION) ================= */
+router.get("/admin/attendance", requireAuth(["admin"]), async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `
+      SELECT 
+        a.id,
+        u.fullname,
+        a.attendance_date,
+        a.day_name,
+        a.time_in,
+        a.time_out,
+        a.total_hours,
+        a.status,
+        'auto' AS source
+      FROM attendance a
+      JOIN users u ON u.id = a.user_id
+
+      UNION ALL
+
+      SELECT 
+        m.id,
+        u.fullname,
+        m.date AS attendance_date,
+        DAYNAME(m.date) AS day_name,
+        m.time_in,
+        m.time_out,
+        m.hours AS total_hours,
+        'present' AS status,
+        'manual' AS source
+      FROM manual_attendance m
+      JOIN users u ON u.id = m.user_id
+
+      ORDER BY attendance_date DESC, id DESC
+      `,
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error("ADMIN ATTENDANCE ERROR:", err);
+    res.status(500).json({ message: "Failed to load attendance records" });
+  }
 });
 
 export default router;

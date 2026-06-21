@@ -49,11 +49,13 @@ function HistoryPage() {
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
+
     try {
       await api("/attendance/manual", {
         method: "POST",
         body: { date, time_in: timeIn, time_out: timeOut },
       });
+
       toast.success("Entry added");
       setShowForm(false);
       setDate("");
@@ -67,17 +69,19 @@ function HistoryPage() {
 
   return (
     <div className="space-y-6">
+      {/* HEADER BUTTON FIX */}
       <PageHeader
         title="Attendance history"
         description="View your full attendance record and add past entries from your logbook."
         actions={
-          <Button onClick={() => setShowForm((v) => !v)}>
+          <Button onClick={() => setShowForm((v) => !v)} className="text-white">
             <Plus className="h-4 w-4" />
             Add past entry
           </Button>
         }
       />
 
+      {/* FORM */}
       {showForm && (
         <Card>
           <form onSubmit={handleAdd} className="grid gap-3 sm:grid-cols-4 sm:items-end">
@@ -87,27 +91,36 @@ function HistoryPage() {
               required
               value={date}
               onChange={(e) => setDate(e.target.value)}
+              className="text-black placeholder:text-gray-400"
             />
+
             <Input
               label="Time in"
               type="time"
               required
               value={timeIn}
               onChange={(e) => setTimeIn(e.target.value)}
+              className="text-black placeholder:text-gray-400"
             />
+
             <Input
               label="Time out"
               type="time"
               required
               value={timeOut}
               onChange={(e) => setTimeOut(e.target.value)}
+              className="text-black placeholder:text-gray-400"
             />
-            <Button type="submit">Save entry</Button>
+
+            {/* SAVE BUTTON FIX */}
+            <Button type="submit" className="text-white">
+              Save entry
+            </Button>
           </form>
         </Card>
       )}
 
-      {/* Weekly summary */}
+      {/* WEEKLY SUMMARY (unchanged) */}
       <Card>
         <div className="mb-4 flex items-center justify-between">
           <div>
@@ -119,6 +132,7 @@ function HistoryPage() {
             <div className="text-xl font-semibold text-primary">{weeklyTotal.toFixed(2)} h</div>
           </div>
         </div>
+
         <div className="grid grid-cols-5 gap-2">
           {(weekly || []).map((w) => (
             <div key={w.day} className="rounded-xl bg-muted/50 p-3 text-center">
@@ -134,8 +148,10 @@ function HistoryPage() {
         </div>
       </Card>
 
+      {/* TABLE (unchanged except small safety fix) */}
       <Card className="p-0">
         <div className="border-b border-border px-5 py-4 text-sm font-semibold">All entries</div>
+
         {loading ? (
           <div className="p-8 text-center text-sm text-muted-foreground">Loading…</div>
         ) : rows.length === 0 ? (
@@ -153,6 +169,7 @@ function HistoryPage() {
                   <th className="px-5 py-3 text-right font-medium">Hours</th>
                 </tr>
               </thead>
+
               <tbody>
                 {rows.map((r) => (
                   <tr key={`${r.source}-${r.id}`} className="border-b border-border last:border-0">
@@ -173,7 +190,7 @@ function HistoryPage() {
                       </span>
                     </td>
                     <td className="px-5 py-3 text-right font-semibold tabular-nums">
-                      {r.total_hours !== null ? Number(r.total_hours).toFixed(2) : "—"};
+                      {r.total_hours !== null ? Number(r.total_hours).toFixed(2) : "—"}
                     </td>
                   </tr>
                 ))}

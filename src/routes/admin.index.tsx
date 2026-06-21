@@ -10,6 +10,7 @@ import {
   ArrowRight,
   ClipboardList,
   BarChart3,
+  FileText,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -82,7 +83,7 @@ function AdminDashboard() {
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-4">
         <QuickAction
           to="/admin/attendance"
           icon={<ClipboardList className="h-5 w-5" />}
@@ -95,6 +96,14 @@ function AdminDashboard() {
           title="Reports"
           desc="See rendered, remaining, and progress per intern."
         />
+
+        <QuickAction
+          to="/admin/daily-reports"
+          icon={<FileText className="h-5 w-5" />}
+          title="Daily Reports"
+          desc="View intern submitted reports grouped by report date."
+        />
+
         <QuickAction
           to="/admin/users"
           icon={<Users className="h-5 w-5" />}

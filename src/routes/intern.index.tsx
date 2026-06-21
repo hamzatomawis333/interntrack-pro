@@ -157,23 +157,6 @@ function InternDashboard() {
         </div>
       </Card>
 
-      {/* 🔥 NEW: Quick Actions */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Link
-          to="/intern/reports"
-          className="group flex items-center justify-between rounded-2xl border border-border bg-card p-5 shadow-(--shadow-soft) transition-all hover:-translate-y-0.5 hover:shadow-(--shadow-elevated)"
-        >
-          <div>
-            <div className="text-sm font-semibold">Daily Report</div>
-            <div className="text-xs text-muted-foreground">Submit your daily activity report</div>
-          </div>
-
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-soft text-primary transition-transform group-hover:translate-x-1">
-            <CalendarDays className="h-5 w-5" />
-          </div>
-        </Link>
-      </div>
-
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard

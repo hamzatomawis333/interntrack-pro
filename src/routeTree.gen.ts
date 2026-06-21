@@ -22,6 +22,7 @@ import { Route as InternHistoryRouteImport } from './routes/intern.history'
 import { Route as InternCalendarRouteImport } from './routes/intern.calendar'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
+import { Route as AdminDailyReportsRouteImport } from './routes/admin.daily-reports'
 import { Route as AdminAttendanceRouteImport } from './routes/admin.attendance'
 
 const RegisterRoute = RegisterRouteImport.update({
@@ -89,6 +90,11 @@ const AdminReportsRoute = AdminReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminDailyReportsRoute = AdminDailyReportsRouteImport.update({
+  id: '/daily-reports',
+  path: '/daily-reports',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAttendanceRoute = AdminAttendanceRouteImport.update({
   id: '/attendance',
   path: '/attendance',
@@ -103,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/intern': typeof InternRouteWithChildren
   '/register': typeof RegisterRoute
   '/admin/attendance': typeof AdminAttendanceRoute
+  '/admin/daily-reports': typeof AdminDailyReportsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/users': typeof AdminUsersRoute
   '/intern/calendar': typeof InternCalendarRoute
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/change-password': typeof ChangePasswordRoute
   '/register': typeof RegisterRoute
   '/admin/attendance': typeof AdminAttendanceRoute
+  '/admin/daily-reports': typeof AdminDailyReportsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/users': typeof AdminUsersRoute
   '/intern/calendar': typeof InternCalendarRoute
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/intern': typeof InternRouteWithChildren
   '/register': typeof RegisterRoute
   '/admin/attendance': typeof AdminAttendanceRoute
+  '/admin/daily-reports': typeof AdminDailyReportsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/users': typeof AdminUsersRoute
   '/intern/calendar': typeof InternCalendarRoute
@@ -152,6 +161,7 @@ export interface FileRouteTypes {
     | '/intern'
     | '/register'
     | '/admin/attendance'
+    | '/admin/daily-reports'
     | '/admin/reports'
     | '/admin/users'
     | '/intern/calendar'
@@ -166,6 +176,7 @@ export interface FileRouteTypes {
     | '/change-password'
     | '/register'
     | '/admin/attendance'
+    | '/admin/daily-reports'
     | '/admin/reports'
     | '/admin/users'
     | '/intern/calendar'
@@ -182,6 +193,7 @@ export interface FileRouteTypes {
     | '/intern'
     | '/register'
     | '/admin/attendance'
+    | '/admin/daily-reports'
     | '/admin/reports'
     | '/admin/users'
     | '/intern/calendar'
@@ -293,6 +305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminReportsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/daily-reports': {
+      id: '/admin/daily-reports'
+      path: '/daily-reports'
+      fullPath: '/admin/daily-reports'
+      preLoaderRoute: typeof AdminDailyReportsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/attendance': {
       id: '/admin/attendance'
       path: '/attendance'
@@ -305,6 +324,7 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminAttendanceRoute: typeof AdminAttendanceRoute
+  AdminDailyReportsRoute: typeof AdminDailyReportsRoute
   AdminReportsRoute: typeof AdminReportsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -312,6 +332,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAttendanceRoute: AdminAttendanceRoute,
+  AdminDailyReportsRoute: AdminDailyReportsRoute,
   AdminReportsRoute: AdminReportsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,

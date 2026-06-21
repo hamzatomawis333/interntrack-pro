@@ -105,7 +105,7 @@ export function Input({
   ...props
 }: React.InputHTMLAttributes<HTMLInputElement> & { label?: string; error?: string }) {
   return (
-    <label className="block">
+    <label className="block text-white/90">
       {label && <span className="mb-1.5 block text-sm font-medium">{label}</span>}
       <input
         className={
