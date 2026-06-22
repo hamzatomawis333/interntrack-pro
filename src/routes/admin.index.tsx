@@ -340,7 +340,7 @@ py-4
 text-right
 "
                     >
-                      {row.total_hours?.toFixed(2)}
+                      {Number(row.total_hours ?? 0).toFixed(2)}
                     </td>
                   </tr>
                 ))}

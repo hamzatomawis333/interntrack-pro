@@ -111,13 +111,13 @@ function UsersPage() {
                 {rows.map((r) => (
                   <tr
                     key={r.id}
+                    onClick={() => (window.location.href = `/admin/${r.id}`)}
                     className="
-border-b
-
-hover:bg-slate-50
-
-transition
-"
+    cursor-pointer
+    border-b
+    hover:bg-slate-50
+    transition
+  "
                   >
                     <td className="px-6 py-4 font-medium">{r.fullname}</td>
 
@@ -163,6 +163,24 @@ focus:border-primary
 
                     <td className="px-6 py-4">
                       <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => (window.location.href = `/admin/${r.id}`)}
+                          className="
+    inline-flex
+    items-center
+    rounded-md
+    bg-indigo-600
+    px-3
+    py-2
+    text-xs
+    font-medium
+    text-white
+    hover:bg-indigo-700
+    transition
+  "
+                        >
+                          Attendance
+                        </button>
                         <button
                           onClick={() => updateHours(r.id)}
                           className="

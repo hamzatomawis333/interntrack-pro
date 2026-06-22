@@ -172,4 +172,61 @@ router.delete("/interns/:id", requireAuth(["admin"]), async (req, res) => {
   res.json({ message: "Deleted" });
 });
 
+/* ================= MANUAL ATTENDANCE INTERN ================= */
+router.get("/interns/:id/attendance", async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `
+      SELECT
+        id,
+        attendance_date,
+        time_in,
+        time_out,
+        total_hours
+      FROM attendance
+      WHERE user_id = ?
+      ORDER BY attendance_date DESC
+      `,
+      [req.params.id],
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      message: "Failed to load attendance",
+    });
+  }
+});
+
+router.get("/interns/:id/attendance", async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const [rows] = await pool.query(
+      `
+      SELECT
+        id,
+        date,
+        time_in,
+        time_out,
+        total_hours
+      FROM attendance
+      WHERE user_id=?
+      ORDER BY date DESC
+      `,
+      [userId],
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error("ADMIN ATTENDANCE ERROR:", err);
+
+    res.status(500).json({
+      message: "Failed to load attendance",
+    });
+  }
+});
+
 export default router;
