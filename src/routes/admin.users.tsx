@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { Card } from "@/components/ui-kit";
@@ -18,6 +18,8 @@ interface Intern {
 }
 
 function UsersPage() {
+  const navigate = useNavigate();
+
   const [rows, setRows] = useState<Intern[]>([]);
   const [loading, setLoading] = useState(true);
   const [edits, setEdits] = useState<Record<number, number>>({});
@@ -37,6 +39,13 @@ function UsersPage() {
   useEffect(() => {
     load();
   }, []);
+
+  const goToAttendance = (id: number) => {
+    navigate({
+      to: "/admin/$userId",
+      params: { userId: id.toString() },
+    });
+  };
 
   const updateHours = async (id: number) => {
     const required = edits[id];
@@ -74,7 +83,6 @@ function UsersPage() {
   return (
     <div className="space-y-8">
       {/* HEADER */}
-
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Intern Accounts</h1>
 
@@ -85,7 +93,6 @@ function UsersPage() {
 
       <Card className="overflow-hidden p-0">
         {/* TABLE */}
-
         {loading ? (
           <div className="p-12 text-center text-muted-foreground">Loading...</div>
         ) : rows.length === 0 ? (
@@ -94,30 +101,25 @@ function UsersPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
-                  <th className="px-6 py-4 text-left">Intern</th>
-
-                  <th className="px-6 py-4 text-left">Username</th>
-
-                  <th className="px-6 py-4 text-left">Required Hours</th>
-
-                  <th className="px-6 py-4 text-left">Joined</th>
-
-                  <th className="px-6 py-4 text-right">Actions</th>
+                <tr>
+                  <td>Intern</td>
+                  <td>Username</td>
+                  <td>Required Hours</td>
+                  <td>Joined</td>
+                  <td>Actions</td>
                 </tr>
               </thead>
-
               <tbody>
                 {rows.map((r) => (
                   <tr
                     key={r.id}
-                    onClick={() => (window.location.href = `/admin/${r.id}`)}
+                    onClick={() => goToAttendance(r.id)}
                     className="
-    cursor-pointer
-    border-b
-    hover:bg-slate-50
-    transition
-  "
+                      cursor-pointer
+                      border-b
+                      hover:bg-slate-50
+                      transition
+                    "
                   >
                     <td className="px-6 py-4 font-medium">{r.fullname}</td>
 
@@ -128,6 +130,7 @@ function UsersPage() {
                         type="number"
                         min={1}
                         defaultValue={r.required_hours}
+                        onClick={(e) => e.stopPropagation()}
                         onChange={(e) =>
                           setEdits((p) => ({
                             ...p,
@@ -135,25 +138,17 @@ function UsersPage() {
                           }))
                         }
                         className="
-h-9
-
-w-28
-
-rounded-md
-
-border
-border-input
-
-bg-card
-
-px-3
-
-text-sm
-
-outline-none
-
-focus:border-primary
-"
+                          h-9
+                          w-28
+                          rounded-md
+                          border
+                          border-input
+                          bg-card
+                          px-3
+                          text-sm
+                          outline-none
+                          focus:border-primary
+                        "
                       />
                     </td>
 
@@ -164,84 +159,70 @@ focus:border-primary
                     <td className="px-6 py-4">
                       <div className="flex justify-end gap-2">
                         <button
-                          onClick={() => (window.location.href = `/admin/${r.id}`)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            goToAttendance(r.id);
+                          }}
                           className="
-    inline-flex
-    items-center
-    rounded-md
-    bg-indigo-600
-    px-3
-    py-2
-    text-xs
-    font-medium
-    text-white
-    hover:bg-indigo-700
-    transition
-  "
+                            inline-flex
+                            items-center
+                            rounded-md
+                            bg-indigo-600
+                            px-3
+                            py-2
+                            text-xs
+                            font-medium
+                            text-white
+                            hover:bg-indigo-700
+                            transition
+                          "
                         >
                           Attendance
                         </button>
+
                         <button
-                          onClick={() => updateHours(r.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            updateHours(r.id);
+                          }}
                           className="
-inline-flex
-
-items-center
-
-gap-1.5
-
-rounded-md
-
-bg-cyan-600
-
-px-3
-py-2
-
-text-xs
-
-font-medium
-
-text-white
-
-hover:bg-cyan-700
-
-transition
-"
+                            inline-flex
+                            items-center
+                            gap-1.5
+                            rounded-md
+                            bg-cyan-600
+                            px-3 py-2
+                            text-xs
+                            font-medium
+                            text-white
+                            hover:bg-cyan-700
+                            transition
+                          "
                         >
                           <Save className="h-3.5 w-3.5" />
                           Save
                         </button>
 
                         <button
-                          onClick={() => remove(r.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            remove(r.id);
+                          }}
                           className="
-inline-flex
-
-items-center
-
-gap-1.5
-
-rounded-md
-
-border
-
-border-red-200
-
-bg-red-50
-
-px-3
-py-2
-
-text-xs
-
-font-medium
-
-text-red-600
-
-hover:bg-red-100
-
-transition
-"
+                            inline-flex
+                            items-center
+                            gap-1.5
+                            rounded-md
+                            border
+                            border-red-200
+                            bg-red-50
+                            px-3 py-2
+                            text-xs
+                            font-medium
+                            text-red-600
+                            hover:bg-red-100
+                            transition
+                          "
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                           Delete
@@ -258,3 +239,5 @@ transition
     </div>
   );
 }
+
+export default UsersPage;

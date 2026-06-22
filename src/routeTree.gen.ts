@@ -24,7 +24,7 @@ import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminDailyReportsRouteImport } from './routes/admin.daily-reports'
 import { Route as AdminAttendanceRouteImport } from './routes/admin.attendance'
-import { Route as AdminUserIdRouteImport } from './routes/admin.$userId.tsxd'
+import { Route as AdminUserIdRouteImport } from './routes/admin.$userId'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',

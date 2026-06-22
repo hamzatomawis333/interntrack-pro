@@ -269,7 +269,9 @@ transition
                     <td className="px-6 py-5 font-mono">{fmtTime(row.time_out)}</td>
 
                     <td className="px-6 py-5">
-                      {row.total_hours != null ? Number(row.total_hours).toFixed(2) : "—"}
+                      {Number.isFinite(Number(row.total_hours))
+                        ? Number(row.total_hours).toFixed(2)
+                        : "—"}
                     </td>
 
                     <td className="px-6 py-5">

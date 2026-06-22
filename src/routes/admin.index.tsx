@@ -39,6 +39,15 @@ function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
 
   const [loading, setLoading] = useState<boolean>(true);
+  const formatTime = (time: string | null) => {
+    if (!time) return "—";
+
+    return new Date(`2000-01-01T${time}`).toLocaleTimeString([], {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -328,9 +337,9 @@ transition
 
                     <td className="px-6 py-4">{row.attendance_date}</td>
 
-                    <td className="px-6 py-4">{row.time_in ?? "—"}</td>
+                    <td className="px-6 py-4">{formatTime(row.time_in)}</td>
 
-                    <td className="px-6 py-4">{row.time_out ?? "—"}</td>
+                    <td className="px-6 py-4">{formatTime(row.time_out)}</td>
 
                     <td
                       className="

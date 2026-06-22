@@ -173,48 +173,31 @@ router.delete("/interns/:id", requireAuth(["admin"]), async (req, res) => {
 });
 
 /* ================= MANUAL ATTENDANCE INTERN ================= */
-router.get("/interns/:id/attendance", async (req, res) => {
+function diffHours(timeIn, timeOut) {
+  if (!timeIn || !timeOut) return 0;
+
+  const [ih, im] = timeIn.split(":").map(Number);
+  const [oh, om] = timeOut.split(":").map(Number);
+
+  return (oh * 60 + om - (ih * 60 + im)) / 60;
+}
+
+router.get("/interns/:userId/attendance", async (req, res) => {
   try {
+    const { userId } = req.params;
     const [rows] = await pool.query(
       `
       SELECT
         id,
         attendance_date,
+        day_name,
         time_in,
         time_out,
-        total_hours
+        total_hours,
+        status
       FROM attendance
       WHERE user_id = ?
-      ORDER BY attendance_date DESC
-      `,
-      [req.params.id],
-    );
-
-    res.json(rows);
-  } catch (err) {
-    console.error(err);
-
-    res.status(500).json({
-      message: "Failed to load attendance",
-    });
-  }
-});
-
-router.get("/interns/:id/attendance", async (req, res) => {
-  try {
-    const userId = req.params.id;
-
-    const [rows] = await pool.query(
-      `
-      SELECT
-        id,
-        date,
-        time_in,
-        time_out,
-        total_hours
-      FROM attendance
-      WHERE user_id=?
-      ORDER BY date DESC
+      ORDER BY attendance_date ASC
       `,
       [userId],
     );
@@ -222,11 +205,45 @@ router.get("/interns/:id/attendance", async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error("ADMIN ATTENDANCE ERROR:", err);
-
-    res.status(500).json({
-      message: "Failed to load attendance",
-    });
+    res.status(500).json({ message: "Failed to load attendance" });
   }
 });
 
+router.put("/interns/:userId/attendance", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { date, time_in, time_out } = req.body;
+
+    const hours = diffHours(time_in, time_out);
+
+    const [existing] = await pool.query(
+      `SELECT id FROM attendance WHERE user_id = ? AND attendance_date = ?`,
+      [userId, date],
+    );
+
+    if (existing.length > 0) {
+      await pool.query(
+        `
+        UPDATE attendance
+        SET time_in = ?, time_out = ?, total_hours = ?
+        WHERE user_id = ? AND attendance_date = ?
+        `,
+        [time_in, time_out, hours.toFixed(2), userId, date],
+      );
+    } else {
+      await pool.query(
+        `
+        INSERT INTO attendance (user_id, attendance_date, time_in, time_out, total_hours, status)
+        VALUES (?, ?, ?, ?, ?, 'present')
+        `,
+        [userId, date, time_in, time_out, hours.toFixed(2)],
+      );
+    }
+
+    res.json({ message: "saved", hours });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to save attendance" });
+  }
+});
 export default router;
