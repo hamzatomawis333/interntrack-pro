@@ -101,12 +101,12 @@ function UsersPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr>
-                  <td>Intern</td>
-                  <td>Username</td>
-                  <td>Required Hours</td>
-                  <td>Joined</td>
-                  <td>Actions</td>
+                <tr className="border-b bg-slate-50">
+                  <th className="px-6 py-4 text-left">Intern</th>
+                  <th className="px-6 py-4 text-left">Username</th>
+                  <th className="px-6 py-4 text-left">Required Hours</th>
+                  <th className="px-6 py-4 text-left">Joined</th>
+                  <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -239,5 +239,3 @@ function UsersPage() {
     </div>
   );
 }
-
-export default UsersPage;

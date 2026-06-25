@@ -23,10 +23,18 @@ interface NavItem {
 
 const adminNav: NavItem[] = [
   { to: "/admin", label: "Dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
-  { to: "/admin/attendance", label: "Attendance", icon: <ClipboardList className="h-4 w-4" /> },
-  { to: "/admin/reports", label: "Reports", icon: <BarChart3 className="h-4 w-4" /> },
-  { to: "/admin/daily-reports", label: "Daily Reports", icon: <FileText className="h-4 w-4" /> },
-  { to: "/admin/users", label: "Interns", icon: <Users className="h-4 w-4" /> },
+  {
+    to: "/admin/attendance",
+    label: "Attendance Monitoring",
+    icon: <ClipboardList className="h-4 w-4" />,
+  },
+  { to: "/admin/reports", label: "Intern Progress", icon: <BarChart3 className="h-4 w-4" /> },
+  {
+    to: "/admin/daily-reports",
+    label: "Intern Daily Reports",
+    icon: <FileText className="h-4 w-4" />,
+  },
+  { to: "/admin/users", label: " Manage Interns", icon: <Users className="h-4 w-4" /> },
 ];
 
 const internNav: NavItem[] = [

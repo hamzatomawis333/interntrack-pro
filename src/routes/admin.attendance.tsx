@@ -4,6 +4,7 @@ import { api } from "@/lib/api";
 import { Card } from "@/components/ui-kit";
 import { fmtTime } from "@/lib/date-utils";
 import { toast } from "sonner";
+import { Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/admin/attendance")({
   component: AttendancePage,
@@ -12,12 +13,18 @@ export const Route = createFileRoute("/admin/attendance")({
 interface Row {
   id: number;
   fullname: string;
-  attendance_date: string;
+
+  date: string;
   day_name: string;
+
   time_in: string | null;
   time_out: string | null;
-  total_hours: number | null;
+
+  hours: number | null;
+
   status: string;
+
+  source?: string;
 }
 
 function AttendancePage() {
@@ -27,6 +34,26 @@ function AttendancePage() {
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
   const [month, setMonth] = useState("");
+  const [selected, setSelected] = useState<Row | null>(null);
+  const totalRecords = rows.length;
+
+  const totalPresent = rows.filter((r) => r.status === "present").length;
+  const totalHours = rows.reduce((sum, r) => sum + Number(r.hours || 0), 0);
+  const deleteRow = async (id: number) => {
+    if (!confirm("Delete this attendance record?")) return;
+
+    try {
+      await api(`/admin/attendance/${id}`, {
+        method: "DELETE",
+      });
+
+      toast.success("Deleted successfully");
+
+      await load();
+    } catch {
+      toast.error("Failed to delete");
+    }
+  };
 
   const load = async (): Promise<void> => {
     setLoading(true);
@@ -39,6 +66,8 @@ function AttendancePage() {
       if (month) q.set("month", month);
 
       const data = await api<Row[]>(`/admin/attendance?${q.toString()}`);
+
+      console.log(JSON.stringify(data, null, 2));
 
       setRows(data);
     } catch (err) {
@@ -207,6 +236,111 @@ transition
 
       {/* TABLE */}
 
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card className="p-5">
+          <div className="text-sm">Records</div>
+          <div className="text-3xl font-bold">{totalRecords}</div>
+        </Card>
+
+        <Card className="p-5">
+          <div className="text-sm">Present</div>
+          <div className="text-3xl font-bold text-green-600">{totalPresent}</div>
+        </Card>
+
+        <Card className="p-5">
+          <div className="text-sm">Average Hours</div>
+
+          <div className="text-3xl font-bold">
+            {rows.length ? (totalHours / rows.length).toFixed(1) : "0"}h
+          </div>
+        </Card>
+
+        <Card className="p-5">
+          <div className="text-sm">Hours</div>
+          <div className="text-3xl font-bold">{totalHours.toFixed(1)}h</div>
+        </Card>
+      </div>
+
+      {selected && (
+        <Card className="overflow-hidden">
+          <div className="border-b px-6 py-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold">Attendance Details</h2>
+
+                <p className="text-sm text-muted-foreground">Selected attendance record</p>
+              </div>
+
+              <button
+                onClick={() => setSelected(null)}
+                className="
+rounded-md
+border
+px-3
+py-2
+text-sm
+hover:bg-muted
+transition
+"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+
+          <div className="grid gap-4 p-6 md:grid-cols-3">
+            <div className="rounded-xl border p-4">
+              <div className="text-xs text-muted-foreground">Intern</div>
+
+              <div className="mt-2 font-semibold">{selected.fullname}</div>
+            </div>
+
+            <div className="rounded-xl border p-4">
+              <div className="text-xs text-muted-foreground">Date</div>
+
+              <div className="mt-2 font-semibold">{selected.date}</div>
+            </div>
+
+            <div className="rounded-xl border p-4">
+              <div className="text-xs text-muted-foreground">Day</div>
+
+              <div className="mt-2 font-semibold">
+                {selected.day_name?.trim()
+                  ? selected.day_name
+                  : new Date(selected.date).toLocaleDateString("en-US", {
+                      weekday: "long",
+                    })}
+              </div>
+            </div>
+
+            <div className="rounded-xl border p-4">
+              <div className="text-xs text-muted-foreground">Time In</div>
+
+              <div className="mt-2 font-semibold">{fmtTime(selected.time_in)}</div>
+            </div>
+
+            <div className="rounded-xl border p-4">
+              <div className="text-xs text-muted-foreground">Time Out</div>
+
+              <div className="mt-2 font-semibold">{fmtTime(selected.time_out)}</div>
+            </div>
+
+            <div className="rounded-xl border p-4">
+              <div className="text-xs text-muted-foreground">Rendered Hours</div>
+
+              <div className="mt-2 font-semibold">{Number(selected.hours || 0).toFixed(2)} h</div>
+            </div>
+
+            <div className="rounded-xl border p-4">
+              <div className="text-xs text-muted-foreground">Status</div>
+
+              <div className="mt-2">
+                <StatusBadge status={selected.status} />
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
       <Card className="overflow-hidden">
         {loading ? (
           <div className="p-10 text-center">Loading...</div>
@@ -243,6 +377,7 @@ text-muted-foreground
                   <th className="px-6 py-4 text-left">Hours</th>
 
                   <th className="px-6 py-4 text-left">Status</th>
+                  <th className="px-6 py-4 text-left">Actions</th>
                 </tr>
               </thead>
 
@@ -250,32 +385,67 @@ text-muted-foreground
                 {rows.map((row) => (
                   <tr
                     key={row.id}
+                    onClick={() => setSelected(row)}
                     className="
+cursor-pointer
 border-b
-
 hover:bg-muted/20
-
 transition
 "
                   >
                     <td className="px-6 py-5 font-medium">{row.fullname}</td>
 
-                    <td className="px-6 py-5">{row.attendance_date}</td>
+                    <td className="px-6 py-5">{row.date}</td>
 
-                    <td className="px-6 py-5">{row.day_name}</td>
+                    <td className="px-6 py-5">
+                      {row.day_name?.trim()
+                        ? row.day_name
+                        : new Date(row.date).toLocaleDateString("en-US", {
+                            weekday: "long",
+                          })}
+                    </td>
 
                     <td className="px-6 py-5 font-mono">{fmtTime(row.time_in)}</td>
 
                     <td className="px-6 py-5 font-mono">{fmtTime(row.time_out)}</td>
 
-                    <td className="px-6 py-5">
-                      {Number.isFinite(Number(row.total_hours))
-                        ? Number(row.total_hours).toFixed(2)
-                        : "—"}
-                    </td>
+                    <td className="px-6 py-5">{Number(row.hours || 0).toFixed(2)}</td>
 
                     <td className="px-6 py-5">
                       <StatusBadge status={row.status} />
+                    </td>
+
+                    <td className="px-6 py-5">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteRow(row.id);
+                        }}
+                        className="
+inline-flex
+items-center
+gap-2
+
+rounded-md
+
+bg-red-500/10
+
+px-3
+py-2
+
+text-xs
+font-semibold
+
+text-red-600
+
+hover:bg-red-500/20
+
+transition
+"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}

@@ -107,6 +107,29 @@ router.get("/attendance", requireAuth(["admin"]), async (req, res) => {
   }
 });
 
+router.delete("/attendance/:id", requireAuth(["admin"]), async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [result] = await pool.query("DELETE FROM attendance WHERE id = ?", [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        message: "Attendance not found",
+      });
+    }
+
+    res.json({
+      message: "Deleted successfully",
+    });
+  } catch (err) {
+    console.error("DELETE ATTENDANCE ERROR:", err);
+
+    res.status(500).json({
+      message: "Failed to delete attendance",
+    });
+  }
+});
 /* ================= REPORTS ================= */
 router.get("/reports", requireAuth(["admin"]), async (req, res) => {
   try {

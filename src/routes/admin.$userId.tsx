@@ -97,7 +97,11 @@ function AdminUserAttendancePage() {
       const updated = await api<Attendance[]>(`/admin/interns/${userId}/attendance`);
 
       setRows(updated);
-    } catch (err) {
+
+      navigate({
+        to: "/admin/attendance",
+      });
+    } catch {
       toast.error("Failed to save attendance");
     }
   };
@@ -140,7 +144,10 @@ function AdminUserAttendancePage() {
               </button>
             </div>
 
-            <div className="grid grid-cols-7 gap-2">
+            <div className="mb-2 grid grid-cols-7 gap-2 text-center text-xs font-semibold text-muted-foreground">
+              {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
+                <div key={d}>{d}</div>
+              ))}
               {cells.map((day, i) => {
                 if (!day) {
                   return <div key={i} className="aspect-square border rounded" />;
@@ -278,7 +285,7 @@ py-3
                     <input
                       type="time"
                       step="60"
-                      value={selectedRecord?.time_in ?? ""}
+                      value={selectedRecord?.time_in?.slice(0, 5) ?? ""}
                       onChange={(e) =>
                         setSelectedRecord((prev) =>
                           prev
@@ -321,7 +328,7 @@ py-3
                     <input
                       type="time"
                       step="60"
-                      value={selectedRecord?.time_out ?? ""}
+                      value={selectedRecord?.time_out?.slice(0, 5) ?? ""}
                       onChange={(e) =>
                         setSelectedRecord((prev) =>
                           prev
@@ -384,5 +391,3 @@ hover:bg-cyan-700
     </div>
   );
 }
-
-export default AdminUserAttendancePage;
