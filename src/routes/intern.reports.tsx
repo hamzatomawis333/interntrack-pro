@@ -10,6 +10,9 @@ export const Route = createFileRoute("/intern/reports")({
 interface Report {
   id: number;
   report_text: string;
+
+  report_date: string;
+
   created_at: string;
 }
 
@@ -18,6 +21,7 @@ function ReportsPage() {
   const [loading, setLoading] = useState(false);
   const [reports, setReports] = useState<Report[]>([]);
   const [fetching, setFetching] = useState(true);
+  const [reportDate, setReportDate] = useState(new Date().toISOString().split("T")[0]);
 
   const loadReports = async () => {
     try {
@@ -48,7 +52,10 @@ function ReportsPage() {
     try {
       await api("/reports", {
         method: "POST",
-        body: { report_text: cleanText },
+        body: {
+          report_text: cleanText,
+          report_date: reportDate,
+        },
       });
 
       toast.success("Report submitted!");
@@ -77,12 +84,51 @@ function ReportsPage() {
         {/* LEFT: SUBMIT */}
         <div className="space-y-4">
           <div className="rounded-xl border bg-card p-4 shadow-sm">
-            <textarea
-              className="min-h-[160px] w-full resize-none rounded-lg border bg-background p-3 text-sm outline-none transition focus:border-primary focus:ring-1 focus:ring-primary/30"
-              placeholder="Write your daily report here..."
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-            />
+            <div className="space-y-3">
+              <div>
+                <label className="mb-2 block text-sm font-medium">Report Date</label>
+
+                <input
+                  type="date"
+                  value={reportDate}
+                  onChange={(e) => setReportDate(e.target.value)}
+                  className="
+h-10
+w-full
+
+rounded-lg
+border
+
+bg-background
+
+px-3
+
+mb-3
+"
+                />
+              </div>
+
+              <textarea
+                className="
+min-h-[160px]
+w-full
+resize-none
+rounded-lg
+border
+bg-background
+p-3
+text-sm
+outline-none
+transition
+focus:border-primary
+focus:ring-1
+focus:ring-primary/30
+"
+                placeholder="Write your daily report here..."
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+              />
+            </div>
 
             <div className="mt-3 flex items-center justify-between">
               <span className="text-xs text-muted-foreground">{text.length}/1000 characters</span>
@@ -126,8 +172,14 @@ function ReportsPage() {
                 >
                   <div className="text-sm whitespace-pre-wrap leading-relaxed">{r.report_text}</div>
 
-                  <div className="mt-2 text-[11px] text-muted-foreground">
-                    {new Date(r.created_at).toLocaleString()}
+                  <div className="mt-3 space-y-1">
+                    <div className="text-xs font-medium text-primary">
+                      Report Date: {new Date(r.report_date).toLocaleDateString()}
+                    </div>
+
+                    <div className="text-[11px] text-muted-foreground">
+                      Submitted: {new Date(r.created_at).toLocaleString()}
+                    </div>
                   </div>
                 </div>
               ))

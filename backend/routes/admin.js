@@ -269,4 +269,34 @@ router.put("/interns/:userId/attendance", async (req, res) => {
     res.status(500).json({ message: "Failed to save attendance" });
   }
 });
+
+/* ================= INTERN REPORTS ================= */
+router.get("/reports/user/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const [rows] = await pool.query(
+      `
+        SELECT
+          id,
+          report_text,
+          report_date,
+          created_at
+        FROM daily_reports
+        WHERE user_id = ?
+        ORDER BY report_date DESC
+        `,
+      [userId],
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error("REPORT LOAD ERROR:", err);
+
+    res.status(500).json({
+      message: "Failed to load reports",
+    });
+  }
+});
+
 export default router;

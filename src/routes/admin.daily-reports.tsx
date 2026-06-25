@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import { api } from "@/lib/api";
 import { Card } from "@/components/ui-kit";
 import { toast } from "sonner";
-import { unreadEvents } from "@/lib/events";
 
 export const Route = createFileRoute("/admin/daily-reports")({
   component: DailyReportsPage,
@@ -11,6 +10,7 @@ export const Route = createFileRoute("/admin/daily-reports")({
 
 interface Report {
   id: number;
+  user_id: number;
   fullname: string;
   report_text: string;
   report_date: string;
@@ -18,161 +18,194 @@ interface Report {
   is_seen: number;
 }
 
-function DailyReportsPage() {
+interface UserReport {
+  id: number;
+  report_text: string;
+  report_date: string;
+  created_at: string;
+}
+
+export default function DailyReportsPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [date, setDate] = useState("");
 
-  /* =========================
-     LOAD REPORTS (SOURCE OF TRUTH)
-  ========================= */
-  const loadReports = async () => {
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [userName, setUserName] = useState("");
+
+  const [userReports, setUserReports] = useState<UserReport[]>([]);
+  const [loadingReports, setLoadingReports] = useState(false);
+
+  async function loadReports() {
     try {
       setLoading(true);
 
       const data = await api<Report[]>("/admin/daily-reports");
+
       setReports(data);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to load reports");
+    } catch {
+      toast.error("Failed to load reports");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   useEffect(() => {
     loadReports();
   }, []);
 
-  /* =========================
-     MARK AS SEEN (FIXED)
-  ========================= */
-  const markAsSeen = async (id: number) => {
-    try {
-      await api(`/admin/daily-reports/${id}/seen`, {
-        method: "PATCH",
-      });
+  const interns = useMemo(() => {
+    const unique = new Map();
 
-      setReports((prev) => prev.map((r) => (r.id === id ? { ...r, is_seen: 1 } : r)));
-
-      // 🔥 trigger sidebar refresh
-      unreadEvents.emit();
-
-      toast.success("Marked as seen");
-    } catch {
-      toast.error("Failed to update status");
-    }
-  };
-
-  const filtered = useMemo(() => {
-    return reports.filter((r) => {
-      const byName = r.fullname.toLowerCase().includes(search.toLowerCase());
-
-      const byDate = !date || r.report_date.startsWith(date);
-
-      return byName && byDate;
+    reports.forEach((r) => {
+      if (r.user_id !== undefined && !unique.has(r.user_id)) {
+        unique.set(r.user_id, {
+          user_id: r.user_id,
+          fullname: r.fullname,
+        });
+      }
     });
-  }, [reports, search, date]);
+
+    return Array.from(unique.values());
+  }, [reports]);
+
+  async function openIntern(userId: number, fullname: string) {
+    console.log("CLICK:", userId);
+
+    if (!userId) {
+      toast.error("Invalid User");
+      return;
+    }
+
+    try {
+      setSelectedUserId(userId);
+      setUserName(fullname);
+
+      setLoadingReports(true);
+
+      setUserReports([]);
+
+      const data = await api<UserReport[]>(`/admin/daily-reports/user/${userId}`);
+
+      console.log("RESULT:", data);
+
+      setUserReports(data);
+    } catch (err) {
+      console.log(err);
+
+      toast.error(err instanceof Error ? err.message : "Failed to load reports");
+    } finally {
+      setLoadingReports(false);
+    }
+  }
 
   return (
-    <div className="space-y-6">
-      {/* HEADER */}
+    <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Daily Reports</h1>
-        <p className="mt-2 text-muted-foreground">
-          Monitor and review intern submissions in real time.
-        </p>
+        <h1 className="text-3xl font-bold">Daily Reports</h1>
+
+        <p className="text-muted-foreground">Select an intern to view reports</p>
       </div>
 
-      <Card className="overflow-hidden">
-        {/* FILTERS */}
-        <div className="flex flex-col gap-3 border-b p-5 md:flex-row md:items-center">
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search intern..."
-            className="h-10 w-full rounded-md border border-input bg-card px-4 text-sm outline-none focus:border-primary"
-          />
+      <div className="grid gap-6 md:grid-cols-[320px_1fr]">
+        <Card className="p-5">
+          <h2 className="mb-4 text-lg font-semibold">Intern List</h2>
 
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="h-10 rounded-md border border-input bg-card px-4 text-sm outline-none focus:border-primary"
-          />
+          {loading ? (
+            <div>Loading...</div>
+          ) : (
+            <div className="space-y-2">
+              {interns.map((i: { user_id: number; fullname: string }) => (
+                <button
+                  key={i.user_id}
+                  onClick={() => openIntern(i.user_id, i.fullname)}
+                  className={`
+                  w-full
+                  rounded-xl
+                  border
+                  p-4
+                  text-left
+                  transition
 
-          <button
-            onClick={() => {
-              setSearch("");
-              setDate("");
-            }}
-            className="h-10 rounded-md border px-4 text-sm hover:bg-muted transition"
-          >
-            Reset
-          </button>
-        </div>
+                  ${selectedUserId === i.user_id ? "border-blue-500 bg-blue-50" : "hover:bg-muted"}
+                  `}
+                >
+                  <div className="font-semibold">{i.fullname}</div>
 
-        {/* CONTENT */}
-        {loading ? (
-          <div className="p-12 text-center text-muted-foreground">Loading...</div>
-        ) : filtered.length === 0 ? (
-          <div className="p-12 text-center text-muted-foreground">No reports found</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
-                  <th className="px-6 py-4 text-left">Intern</th>
-                  <th className="px-6 py-4 text-left">Report</th>
-                  <th className="px-6 py-4 text-left">Date</th>
-                  <th className="px-6 py-4 text-left">Submitted</th>
-                  <th className="px-6 py-4 text-left">Status</th>
-                </tr>
-              </thead>
+                  <div className="text-xs text-muted-foreground">
+                    User ID:
+                    {i.user_id}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </Card>
 
-              <tbody>
-                {filtered.map((r) => (
-                  <tr
-                    key={r.id}
-                    className={`border-b transition hover:bg-slate-50 ${
-                      r.is_seen === 0 ? "bg-yellow-50/40" : ""
-                    }`}
-                  >
-                    <td className="px-6 py-5 font-medium">{r.fullname}</td>
+        <Card className="p-5">
+          {!selectedUserId ? (
+            <div className="text-muted-foreground">Select an intern</div>
+          ) : loadingReports ? (
+            <div>Loading reports...</div>
+          ) : (
+            <>
+              <div className="mb-5 flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold">{userName}</h2>
 
-                    <td className="px-6 py-5">
-                      <div className="max-w-xl whitespace-pre-wrap text-sm text-muted-foreground">
-                        {r.report_text}
+                  <p className="text-sm text-muted-foreground">Daily activity reports</p>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setSelectedUserId(null);
+                    setUserName("");
+                    setUserReports([]);
+                  }}
+                  className="
+      rounded-lg
+      border
+      px-4
+      py-2
+      text-sm
+      hover:bg-muted
+      transition
+    "
+                >
+                  ← Back
+                </button>
+              </div>
+              {userReports.length === 0 ? (
+                <div>No reports</div>
+              ) : (
+                <div className="space-y-3">
+                  {userReports.map((r) => (
+                    <div
+                      key={r.id}
+                      className="
+                      rounded-xl
+                      border
+                      p-4
+                      "
+                    >
+                      <div>{r.report_text}</div>
+
+                      <div
+                        className="
+                        mt-2
+                        text-xs
+                        text-muted-foreground
+                        "
+                      >
+                        {r.report_date}
                       </div>
-                    </td>
-
-                    <td className="px-6 py-5 text-muted-foreground">{r.report_date}</td>
-
-                    <td className="px-6 py-5 text-muted-foreground">
-                      {new Date(r.created_at).toLocaleString()}
-                    </td>
-
-                    <td className="px-6 py-5">
-                      {r.is_seen === 1 ? (
-                        <span className="inline-flex rounded-md bg-green-500/10 px-3 py-1 text-xs font-semibold text-green-600">
-                          Seen
-                        </span>
-                      ) : (
-                        <button
-                          onClick={() => markAsSeen(r.id)}
-                          className="text-xs rounded-md border px-3 py-1 hover:bg-muted transition"
-                        >
-                          Mark as seen
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </Card>
+      </div>
     </div>
   );
 }

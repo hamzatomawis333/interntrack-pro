@@ -250,22 +250,6 @@ app.delete("/api/admin/interns/:id", async (req, res) => {
 });
 
 /* =========================================================
-   MARK DAILY REPORT AS SEEN
-========================================================= */
-app.patch("/api/admin/daily-reports/:id/seen", async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    await pool.query("UPDATE daily_reports SET is_seen = 1 WHERE id = ?", [id]);
-
-    res.json({ message: "Marked as seen" });
-  } catch (err) {
-    console.error("MARK SEEN ERROR:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-/* =========================================================
    UNREAD DAILY REPORTS COUNT
 ========================================================= */
 app.get("/api/admin/daily-reports/unread-count", async (req, res) => {
