@@ -171,18 +171,34 @@ router.get("/history", requireAuth(["intern"]), async (req, res) => {
   const userId = req.user.id;
 
   const [auto] = await pool.query(
-    `SELECT id, attendance_date, day_name, time_in, time_out, total_hours,
-            'auto' AS source
-     FROM attendance WHERE user_id = ?`,
+    `
+    SELECT
+      id,
+      attendance_date,
+      DAYNAME(attendance_date) AS day_name,
+      time_in,
+      time_out,
+      total_hours,
+      'auto' AS source
+    FROM attendance
+    WHERE user_id = ?
+    `,
     [userId],
   );
 
   const [manual] = await pool.query(
-    `SELECT id, date AS attendance_date,
-            DAYNAME(date) AS day_name,
-            time_in, time_out, hours AS total_hours,
-            'manual' AS source
-     FROM manual_attendance WHERE user_id = ?`,
+    `
+    SELECT
+      id,
+      date AS attendance_date,
+      DAYNAME(date) AS day_name,
+      time_in,
+      time_out,
+      hours AS total_hours,
+      'manual' AS source
+    FROM manual_attendance
+    WHERE user_id = ?
+    `,
     [userId],
   );
 
@@ -190,38 +206,10 @@ router.get("/history", requireAuth(["intern"]), async (req, res) => {
     a.attendance_date < b.attendance_date ? 1 : -1,
   );
 
-  res.json({ rows });
-});
-
-/* ================= MANUAL ================= */
-router.post("/manual", requireAuth(["intern"]), async (req, res) => {
-  const { date, time_in, time_out } = req.body || {};
-
-  if (!date || !time_in || !time_out) {
-    return res.status(400).json({ message: "Date, time in, and time out are required" });
-  }
-
-  const d = new Date(date);
-  if (isNaN(d.getTime())) {
-    return res.status(400).json({ message: "Invalid date" });
-  }
-
-  const hours = diffHours(
-    time_in.length === 5 ? `${time_in}:00` : time_in,
-    time_out.length === 5 ? `${time_out}:00` : time_out,
-  );
-
-  if (hours <= 0) {
-    return res.status(400).json({ message: "Time out must be after time in" });
-  }
-
-  await pool.query(
-    `INSERT INTO manual_attendance (user_id, date, time_in, time_out, hours)
-     VALUES (?, ?, ?, ?, ?)`,
-    [req.user.id, date, time_in, time_out, hours.toFixed(2)],
-  );
-
-  res.status(201).json({ message: "Manual entry added", hours });
+  res.json({
+    rows,
+    weekly: [],
+  });
 });
 
 /* ================= CALENDAR ================= */
