@@ -25,7 +25,7 @@ interface UserReport {
   created_at: string;
 }
 
-export default function DailyReportsPage() {
+function DailyReportsPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
 
