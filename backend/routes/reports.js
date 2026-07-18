@@ -37,31 +37,6 @@ router.post("/", requireAuth(), async (req, res) => {
       [user_id, report_text, report_date],
     );
 
-    router.get("/user/:id", requireAuth(), async (req, res) => {
-      try {
-        const userId = req.params.id;
-
-        const [rows] = await pool.query(
-          `
-      SELECT
-        id,
-        report_text,
-        report_date,
-        created_at
-      FROM daily_reports
-      WHERE user_id = ?
-      ORDER BY report_date DESC, created_at DESC
-      `,
-          [userId],
-        );
-
-        res.json(rows);
-      } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Failed to load user reports" });
-      }
-    });
-
     res.json({
       message: "Report saved successfully",
     });

@@ -31,8 +31,6 @@ export async function api<T = unknown>(
   if (auth) {
     const token = getToken();
 
-    console.log("SENDING TOKEN:", token); // 👈 DEBUG HERE
-
     if (token) headers.Authorization = `Bearer ${token}`;
   }
 

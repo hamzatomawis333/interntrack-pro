@@ -52,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     localStorage.removeItem("ojt_token");
     localStorage.removeItem("ojt_user");
+    localStorage.removeItem("admin_prompt_seen");
     setToken(null);
     setUserState(null);
   };

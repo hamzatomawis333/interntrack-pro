@@ -31,7 +31,7 @@ Default `.env` values match a fresh XAMPP install (`root` / empty password).
 **Option B — via script:**
 
 ```bash
-npm run init-db
+x
 ```
 
 This creates a database named `ojt_attendance` with three tables

@@ -116,7 +116,7 @@ function AuthPage() {
               <div className="text-xs text-white/60 tracking-wide">Work days</div>
 
               <div className="text-white font-semibold mt-2 text-lg tracking-tight">
-                Monday - Thursday
+                Monday - Friday
               </div>
             </div>
           </div>

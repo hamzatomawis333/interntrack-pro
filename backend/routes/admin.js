@@ -173,7 +173,7 @@ router.get("/interns", requireAuth(["admin"]), async (req, res) => {
 });
 
 /* ================= UPDATE INTERN ================= */
-router.patch("/interns/:id", requireAuth(["admin"]), async (req, res) => {
+router.put("/interns/:id", requireAuth(["admin"]), async (req, res) => {
   const { required_hours } = req.body;
 
   if (!required_hours || required_hours < 1) {
@@ -190,7 +190,11 @@ router.patch("/interns/:id", requireAuth(["admin"]), async (req, res) => {
 
 /* ================= DELETE INTERN ================= */
 router.delete("/interns/:id", requireAuth(["admin"]), async (req, res) => {
-  await pool.query("DELETE FROM users WHERE id=? AND role='intern'", [req.params.id]);
+  const { id } = req.params;
+  await pool.query("DELETE FROM attendance WHERE user_id = ?", [id]);
+  await pool.query("DELETE FROM manual_attendance WHERE user_id = ?", [id]);
+  await pool.query("DELETE FROM daily_reports WHERE user_id = ?", [id]);
+  await pool.query("DELETE FROM users WHERE id=? AND role='intern'", [id]);
 
   res.json({ message: "Deleted" });
 });
@@ -205,7 +209,7 @@ function diffHours(timeIn, timeOut) {
   return (oh * 60 + om - (ih * 60 + im)) / 60;
 }
 
-router.get("/interns/:userId/attendance", async (req, res) => {
+router.get("/interns/:userId/attendance", requireAuth(["admin"]), async (req, res) => {
   try {
     const { userId } = req.params;
     const [rows] = await pool.query(
@@ -232,7 +236,7 @@ router.get("/interns/:userId/attendance", async (req, res) => {
   }
 });
 
-router.put("/interns/:userId/attendance", async (req, res) => {
+router.put("/interns/:userId/attendance", requireAuth(["admin"]), async (req, res) => {
   try {
     const { userId } = req.params;
     const { date, time_in, time_out } = req.body;
@@ -271,7 +275,7 @@ router.put("/interns/:userId/attendance", async (req, res) => {
 });
 
 /* ================= INTERN REPORTS ================= */
-router.get("/reports/user/:userId", async (req, res) => {
+router.get("/reports/user/:userId", requireAuth(["admin"]), async (req, res) => {
   try {
     const { userId } = req.params;
 

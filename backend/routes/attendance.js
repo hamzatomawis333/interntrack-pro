@@ -206,9 +206,40 @@ router.get("/history", requireAuth(["intern"]), async (req, res) => {
     a.attendance_date < b.attendance_date ? 1 : -1,
   );
 
+  const d = new Date();
+  const dow = d.getDay() || 7;
+  const monday = new Date(d);
+  monday.setDate(d.getDate() - (dow - 1));
+  const friday = new Date(monday);
+  friday.setDate(monday.getDate() + 4);
+
+  const fmt = (x) =>
+    `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`;
+
+  const [weekAuto] = await pool.query(
+    `SELECT DAYNAME(attendance_date) AS day, total_hours AS hours
+     FROM attendance
+     WHERE user_id = ? AND attendance_date BETWEEN ? AND ?`,
+    [userId, fmt(monday), fmt(friday)],
+  );
+
+  const [weekManual] = await pool.query(
+    `SELECT DAYNAME(date) AS day, hours
+     FROM manual_attendance
+     WHERE user_id = ? AND date BETWEEN ? AND ?`,
+    [userId, fmt(monday), fmt(friday)],
+  );
+
+  const dayMap = new Map();
+  const dayOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  for (const r of [...weekAuto, ...weekManual]) {
+    dayMap.set(r.day, (dayMap.get(r.day) || 0) + Number(r.hours));
+  }
+  const weekly = dayOrder.map((day) => ({ day, hours: dayMap.get(day) || 0 }));
+
   res.json({
     rows,
-    weekly: [],
+    weekly,
   });
 });
 

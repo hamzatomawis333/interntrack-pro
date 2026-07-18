@@ -67,8 +67,6 @@ function AttendancePage() {
 
       const data = await api<Row[]>(`/admin/attendance?${q.toString()}`);
 
-      console.log(JSON.stringify(data, null, 2));
-
       setRows(data);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to load");

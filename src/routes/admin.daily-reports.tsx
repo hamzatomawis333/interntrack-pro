@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { api } from "@/lib/api";
 import { Card } from "@/components/ui-kit";
 import { toast } from "sonner";
-
+import { unreadEvents } from "@/lib/events";
 export const Route = createFileRoute("/admin/daily-reports")({
   component: DailyReportsPage,
 });
@@ -69,8 +69,6 @@ function DailyReportsPage() {
   }, [reports]);
 
   async function openIntern(userId: number, fullname: string) {
-    console.log("CLICK:", userId);
-
     if (!userId) {
       toast.error("Invalid User");
       return;
@@ -86,12 +84,25 @@ function DailyReportsPage() {
 
       const data = await api<UserReport[]>(`/admin/daily-reports/user/${userId}`);
 
-      console.log("RESULT:", data);
-
       setUserReports(data);
-    } catch (err) {
-      console.log(err);
 
+      await api(`/admin/daily-reports/mark-seen/${userId}`, {
+        method: "POST",
+      });
+
+      // 🔥 notify sidebar instantly
+      unreadEvents.emit();
+
+      await loadReports();
+
+      // 🔥 MARK REPORTS AS SEEN
+      await api(`/admin/daily-reports/mark-seen/${userId}`, {
+        method: "POST",
+      });
+
+      // refresh sidebar notification
+      loadReports();
+    } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to load reports");
     } finally {
       setLoadingReports(false);

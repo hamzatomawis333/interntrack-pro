@@ -1,5 +1,6 @@
 import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth";
+import { useTheme } from "@/lib/theme";
 import {
   LayoutDashboard,
   ClipboardList,
@@ -8,6 +9,9 @@ import {
   LogOut,
   Clock3,
   FileText,
+  Sun,
+  Moon,
+  Palette,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui-kit";
@@ -44,8 +48,9 @@ const internNav: NavItem[] = [
   { to: "/intern/reports", label: "Daily Report", icon: <FileText className="h-4 w-4" /> },
 ];
 
-export function AppShell({ variant }: { variant: "admin" | "intern" }) {
+export function AppShell({ variant, children }: { variant: "admin" | "intern"; children?: ReactNode }) {
   const { user, logout } = useAuth();
+  const { dark, toggleDark, accentIndex, setAccent, accentPresets } = useTheme();
   const navigate = useNavigate();
 
   const pathname = useRouterState({
@@ -55,10 +60,8 @@ export function AppShell({ variant }: { variant: "admin" | "intern" }) {
   const nav = variant === "admin" ? adminNav : internNav;
 
   const [unreadCount, setUnreadCount] = useState(0);
+  const [showColorPicker, setShowColorPicker] = useState(false);
 
-  /* =========================
-     LOAD UNREAD COUNT
-  ========================= */
   const loadUnread = async () => {
     try {
       const data = await api<{ count: number }>("/admin/daily-reports/unread-count");
@@ -68,9 +71,6 @@ export function AppShell({ variant }: { variant: "admin" | "intern" }) {
     }
   };
 
-  /* =========================
-     POLLING (backup refresh)
-  ========================= */
   useEffect(() => {
     if (variant !== "admin") return;
 
@@ -81,10 +81,6 @@ export function AppShell({ variant }: { variant: "admin" | "intern" }) {
     return () => clearInterval(interval);
   }, [variant]);
 
-  /* =========================
-     REAL-TIME EVENT SYNC
-     (🔥 IMPORTANT PART)
-  ========================= */
   useEffect(() => {
     if (variant !== "admin") return;
 
@@ -97,10 +93,8 @@ export function AppShell({ variant }: { variant: "admin" | "intern" }) {
       }
     };
 
-    // initial load
     loadUnread();
 
-    // 🔥 WHEN EVENT FIRES → ALWAYS RE-FETCH
     const unsubscribe = unreadEvents.subscribe(async () => {
       await loadUnread();
     });
@@ -116,15 +110,15 @@ export function AppShell({ variant }: { variant: "admin" | "intern" }) {
   return (
     <div className="min-h-screen bg-background">
       {/* SIDEBAR */}
-      <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-border bg-card md:flex">
+      <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-white/10 bg-navy-sidebar text-white md:flex">
         {/* BRAND */}
-        <div className="flex h-16 items-center gap-3 border-b border-border px-6">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+        <div className="flex h-16 items-center gap-3 border-b border-white/10 px-6">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/15 text-white">
             <Clock3 className="h-5 w-5" />
           </div>
           <div>
             <div className="text-sm font-semibold">OJT Tracker</div>
-            <div className="text-xs text-muted-foreground capitalize">{variant} portal</div>
+            <div className="text-xs text-white/60 capitalize">{variant} portal</div>
           </div>
         </div>
 
@@ -142,21 +136,20 @@ export function AppShell({ variant }: { variant: "admin" | "intern" }) {
                 to={item.to as never}
                 className={`group relative flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
                   active
-                    ? "bg-primary-soft text-primary"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    ? "bg-white/15 text-white"
+                    : "text-white/60 hover:bg-white/8 hover:text-white"
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <span
                     className={`absolute left-0 h-6 w-1 rounded-r-full transition ${
-                      active ? "bg-primary opacity-100" : "opacity-0 group-hover:opacity-40"
+                      active ? "bg-white opacity-100" : "opacity-0 group-hover:opacity-40"
                     }`}
                   />
                   {item.icon}
                   {item.label}
                 </div>
 
-                {/* BADGE */}
                 {variant === "admin" && isDailyReports && unreadCount > 0 && (
                   <span className="rounded-full bg-red-500 px-2 py-0.5 text-xs text-white">
                     {unreadCount}
@@ -167,18 +160,79 @@ export function AppShell({ variant }: { variant: "admin" | "intern" }) {
           })}
         </nav>
 
-        {/* USER */}
-        <div className="border-t border-border p-3">
-          <div className="rounded-xl bg-muted/60 px-3 py-2.5">
-            <div className="text-sm font-medium">{user?.fullname}</div>
-            <div className="text-xs text-muted-foreground">@{user?.username}</div>
+        {/* CONTROLS + USER */}
+        <div className="border-t border-white/10 p-3">
+          {/* THEME CONTROLS */}
+          <div className="mb-3 flex items-center gap-1">
+            <button
+              onClick={toggleDark}
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-white/60 transition hover:bg-white/10 hover:text-white"
+              title={dark ? "Light mode" : "Dark mode"}
+            >
+              {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+
+            <div className="relative">
+              <button
+                onClick={() => setShowColorPicker((p) => !p)}
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-white/60 transition hover:bg-white/10 hover:text-white"
+                title="Accent color"
+              >
+                <Palette className="h-4 w-4" />
+              </button>
+
+              {showColorPicker && (
+                <div className="absolute bottom-full left-0 mb-2 w-44 rounded-xl border border-white/10 bg-navy-sidebar p-3 shadow-xl">
+                  <div className="mb-2 text-xs font-medium text-white/60">Accent Color</div>
+                  <div className="grid grid-cols-6 gap-1.5">
+                    {accentPresets.map((p, i) => (
+                      <button
+                        key={p.label}
+                        onClick={() => {
+                          setAccent(i);
+                          setShowColorPicker(false);
+                        }}
+                        className={`h-6 w-6 rounded-full border-2 transition ${
+                          accentIndex === i ? "border-white scale-110" : "border-transparent hover:scale-110"
+                        }`}
+                        style={{ backgroundColor: p.value.replace("oklch", "oklch").includes("oklch") ? undefined : p.value }}
+                        title={p.label}
+                      >
+                        <span
+                          className="block h-full w-full rounded-full"
+                          style={{
+                            backgroundColor: [
+                              "#22c55e",
+                              "#3b82f6",
+                              "#a855f7",
+                              "#f97316",
+                              "#ef4444",
+                              "#14b8a6",
+                            ][i],
+                          }}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* USER INFO */}
+          <div className="rounded-xl bg-white/8 px-3 py-2.5">
+            <div className="text-sm font-medium text-white">{user?.fullname}</div>
+            <div className="text-xs text-white/50">@{user?.username}</div>
           </div>
 
           <div className="mt-2">
-            <Button variant="ghost" className="w-full justify-start" onClick={handleLogout}>
+            <button
+              onClick={handleLogout}
+              className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-white/60 transition hover:bg-white/8 hover:text-white"
+            >
               <LogOut className="h-4 w-4" />
               Sign out
-            </Button>
+            </button>
           </div>
         </div>
       </aside>

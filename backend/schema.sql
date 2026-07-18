@@ -46,11 +46,22 @@ CREATE TABLE IF NOT EXISTS manual_attendance (
   CONSTRAINT fk_manual_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
+-- ---------- DAILY REPORTS ----------
+CREATE TABLE IF NOT EXISTS daily_reports (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  report_text TEXT NOT NULL,
+  report_date DATE NOT NULL,
+  is_seen TINYINT(1) NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_dr_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 -- ---------- SEED DEFAULT ADMIN ----------
 -- username: admin   password: admin   (must_change_password = 1)
--- bcrypt hash for "admin" (cost 10)
+-- bcrypt hash for "admin" (cost 10) — regenerate with: node -e "require('bcrypt').hash('admin',10).then(console.log)"
 INSERT INTO users (fullname, username, password, role, required_hours, must_change_password)
 SELECT 'System Administrator', 'admin',
-       '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+       '$2b$10$mkOBf56WZ66gRtXeNpf7g.MPXvUuzKf.wGeOZqSmIfMtNAPmKCBEG',
        'admin', 0, 1
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE username = 'admin');

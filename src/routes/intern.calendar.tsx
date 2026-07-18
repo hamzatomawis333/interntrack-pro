@@ -51,18 +51,14 @@ function CalendarPage() {
 
   const prev = () => {
     if (month === 0) {
-      if (year > 2026) {
-        setYear(year - 1);
-        setMonth(11);
-      }
+      setYear(year - 1);
+      setMonth(11);
     } else setMonth(month - 1);
   };
   const next = () => {
     if (month === 11) {
-      if (year < 2027) {
-        setYear(year + 1);
-        setMonth(0);
-      }
+      setYear(year + 1);
+      setMonth(0);
     } else setMonth(month + 1);
   };
 
@@ -73,10 +69,7 @@ function CalendarPage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 p-4 sm:p-6">
-      <PageHeader
-        title="Attendance calendar"
-        description="Monthly view of your attendance from 2026 to 2027."
-      />
+      <PageHeader title="Attendance calendar" description="Monthly view of your attendance." />
 
       <Card className="overflow-hidden shadow-sm border">
         {/* HEADER NAV */}
@@ -118,9 +111,13 @@ function CalendarPage() {
 
             const rec = c.date ? records[c.date] : undefined;
 
-            const isToday =
-              c.date ===
-              `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+            const isToday = c.date === todayStr;
+
+            const isPast = c.date && new Date(c.date) < new Date(todayStr);
+
+            const isAbsent = !rec && !c.weekend && isPast;
 
             return (
               <button
@@ -151,8 +148,24 @@ function CalendarPage() {
                 )}
 
                 {/* EMPTY DOT */}
-                {!rec && !c.weekend && (
-                  <div className="absolute bottom-2 right-2 h-1.5 w-1.5 rounded-full bg-muted-foreground/40" />
+                {isAbsent && (
+                  <div
+                    className="
+    absolute
+    bottom-2
+    right-2
+    rounded-full
+    bg-red-500
+    px-2
+    py-1
+    text-[10px]
+    font-semibold
+    text-white
+    shadow-sm
+    "
+                  >
+                    Absent
+                  </div>
                 )}
               </button>
             );
@@ -162,7 +175,7 @@ function CalendarPage() {
         {/* LEGEND */}
         <div className="flex flex-wrap gap-4 border-t px-4 py-3 text-xs text-muted-foreground">
           <Legend color="bg-primary" label="Present" />
-          <Legend color="bg-muted-foreground/40" label="Absent" />
+          <Legend color="bg-red-500" label="Absent" />
           <Legend color="bg-muted" label="Weekend" />
         </div>
       </Card>

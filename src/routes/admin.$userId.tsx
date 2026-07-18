@@ -162,6 +162,19 @@ function AdminUserAttendancePage() {
                 const weekday = new Date(dateStr).getDay();
 
                 const isWeekend = weekday === 0 || weekday === 6;
+
+                const currentDate = new Date();
+
+                currentDate.setHours(0, 0, 0, 0);
+
+                const cellDate = new Date(dateStr);
+
+                cellDate.setHours(0, 0, 0, 0);
+
+                const isPast = cellDate < currentDate;
+
+                const isAbsent = !record && !isWeekend && isPast;
+
                 return (
                   <button
                     key={i}
@@ -174,44 +187,30 @@ function AdminUserAttendancePage() {
                       setSelectedRecord(record || null);
                     }}
                     className={`
-
 relative
-
 aspect-square
-
 rounded-xl
-
 border
-
 p-2
-
 transition
-
 flex
-
 flex-col
-
 items-center
-
 justify-center
 
-${record ? "bg-green-50 border-green-300" : ""}
+${
+  record
+    ? "bg-green-50 border-green-300"
+    : isAbsent
+      ? "bg-red-50 border-red-300"
+      : isWeekend
+        ? "bg-muted border-border"
+        : ""
+}
 
 ${isSelected ? "ring-2 ring-cyan-500" : ""}
 
-${
-  isWeekend
-    ? `
-bg-red-50
-border-red-200
-text-red-500
-cursor-not-allowed
-`
-    : `
-hover:bg-muted
-`
-}
-
+${!isWeekend ? "hover:bg-muted" : ""}
 `}
                   >
                     <div
@@ -231,17 +230,42 @@ font-semibold
                       {day}
                     </div>
 
+                    {record && (
+                      <div
+                        className="
+absolute
+bottom-1
+text-[10px]
+font-medium
+text-green-600
+"
+                      >
+                        Present
+                      </div>
+                    )}
+
+                    {isAbsent && (
+                      <div
+                        className="
+absolute
+bottom-1
+text-[10px]
+font-medium
+text-red-500
+"
+                      >
+                        Absent
+                      </div>
+                    )}
+
                     {isWeekend && (
                       <div
                         className="
 absolute
 bottom-1
-
 text-[10px]
-
 font-medium
-
-text-red-500
+text-muted-foreground
 "
                       >
                         OFF
