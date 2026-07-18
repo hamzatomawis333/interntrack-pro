@@ -4,6 +4,9 @@ import { api } from "@/lib/api";
 import { Card } from "@/components/ui-kit";
 import { toast } from "sonner";
 import { unreadEvents } from "@/lib/events";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Inbox } from "lucide-react";
+
 export const Route = createFileRoute("/admin/daily-reports")({
   component: DailyReportsPage,
 });
@@ -90,18 +93,9 @@ function DailyReportsPage() {
         method: "POST",
       });
 
-      // 🔥 notify sidebar instantly
       unreadEvents.emit();
 
       await loadReports();
-
-      // 🔥 MARK REPORTS AS SEEN
-      await api(`/admin/daily-reports/mark-seen/${userId}`, {
-        method: "POST",
-      });
-
-      // refresh sidebar notification
-      loadReports();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to load reports");
     } finally {
@@ -122,7 +116,16 @@ function DailyReportsPage() {
           <h2 className="mb-4 text-lg font-semibold">Intern List</h2>
 
           {loading ? (
-            <div>Loading...</div>
+            <div className="space-y-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-16 w-full rounded-xl" />
+              ))}
+            </div>
+          ) : interns.length === 0 ? (
+            <div className="flex flex-col items-center gap-3 py-8 text-center text-muted-foreground">
+              <Inbox className="h-8 w-8" />
+              <div className="text-sm">No interns found</div>
+            </div>
           ) : (
             <div className="space-y-2">
               {interns.map((i: { user_id: number; fullname: string }) => (
@@ -141,11 +144,6 @@ function DailyReportsPage() {
                   `}
                 >
                   <div className="font-semibold">{i.fullname}</div>
-
-                  <div className="text-xs text-muted-foreground">
-                    User ID:
-                    {i.user_id}
-                  </div>
                 </button>
               ))}
             </div>
@@ -154,9 +152,20 @@ function DailyReportsPage() {
 
         <Card className="p-5">
           {!selectedUserId ? (
-            <div className="text-muted-foreground">Select an intern</div>
+            <div className="flex flex-col items-center gap-3 py-16 text-center text-muted-foreground">
+              <Inbox className="h-8 w-8" />
+              <div className="text-sm">Select an intern to view their reports</div>
+            </div>
           ) : loadingReports ? (
-            <div>Loading reports...</div>
+            <div className="space-y-4">
+              <Skeleton className="h-6 w-48" />
+              <Skeleton className="h-4 w-32" />
+              <div className="space-y-3 mt-6">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} className="h-24 w-full rounded-xl" />
+                ))}
+              </div>
+            </div>
           ) : (
             <>
               <div className="mb-5 flex items-center justify-between">
@@ -186,7 +195,10 @@ function DailyReportsPage() {
                 </button>
               </div>
               {userReports.length === 0 ? (
-                <div>No reports</div>
+                <div className="flex flex-col items-center gap-3 py-12 text-center text-muted-foreground">
+                  <Inbox className="h-8 w-8" />
+                  <div className="text-sm">No reports submitted yet</div>
+                </div>
               ) : (
                 <div className="space-y-3">
                   {userReports.map((r) => (

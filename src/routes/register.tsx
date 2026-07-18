@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { api } from "@/lib/api";
-import { Button, Input } from "@/components/ui-kit";
+import { Button, Input, PasswordInput } from "@/components/ui-kit";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 
@@ -16,7 +16,6 @@ function RegisterPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [requiredHours, setRequiredHours] = useState(486);
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,7 +41,6 @@ function RegisterPage() {
           fullname,
           username,
           password,
-          required_hours: requiredHours,
         },
       });
 
@@ -123,9 +121,8 @@ function RegisterPage() {
             />
 
             <div className="grid grid-cols-2 gap-3">
-              <Input
+              <PasswordInput
                 label="Password"
-                type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -133,9 +130,8 @@ function RegisterPage() {
                 className="text-black"
               />
 
-              <Input
+              <PasswordInput
                 label="Confirm"
-                type="password"
                 required
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
@@ -143,16 +139,6 @@ function RegisterPage() {
                 className="text-black"
               />
             </div>
-
-            <Input
-              label="Required hours"
-              type="number"
-              min={1}
-              max={2000}
-              value={requiredHours}
-              onChange={(e) => setRequiredHours(parseInt(e.target.value || "0", 10))}
-              className="text-black"
-            />
 
             <Button
               type="submit"

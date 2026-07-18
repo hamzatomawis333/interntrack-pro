@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { createFileRoute } from "@tanstack/react-router";
+import { Inbox } from "lucide-react";
 
 export const Route = createFileRoute("/intern/reports")({
   component: ReportsPage,
@@ -16,6 +17,8 @@ interface Report {
   created_at: string;
 }
 
+const MAX_CHARS = 1000;
+
 function ReportsPage() {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,8 +30,7 @@ function ReportsPage() {
     try {
       const data = await api<Report[]>("/reports/my");
       setReports(data);
-    } catch (err) {
-      console.log(err);
+    } catch {
       toast.error("Failed to load reports");
     } finally {
       setFetching(false);
@@ -61,13 +63,16 @@ function ReportsPage() {
       toast.success("Report submitted!");
 
       setText("");
-      await loadReports(); // refresh list
+      await loadReports();
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to submit report");
     } finally {
       setLoading(false);
     }
   };
+
+  const charCount = text.length;
+  const isOverLimit = charCount > MAX_CHARS;
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-6">
@@ -126,16 +131,21 @@ focus:ring-primary/30
 "
                 placeholder="Write your daily report here..."
                 value={text}
+                maxLength={MAX_CHARS}
                 onChange={(e) => setText(e.target.value)}
               />
             </div>
 
             <div className="mt-3 flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">{text.length}/1000 characters</span>
+              <span
+                className={`text-xs ${isOverLimit ? "font-medium text-destructive" : "text-muted-foreground"}`}
+              >
+                {charCount}/{MAX_CHARS} characters
+              </span>
 
               <button
                 onClick={submitReport}
-                disabled={loading || !text.trim()}
+                disabled={loading || !text.trim() || isOverLimit}
                 className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
               >
                 {loading ? "Submitting..." : "Submit"}
@@ -143,7 +153,7 @@ focus:ring-primary/30
             </div>
           </div>
 
-          {/* QUICK STATS CARD (optional but looks premium) */}
+          {/* QUICK STATS CARD */}
           <div className="rounded-xl border bg-card p-4 text-sm shadow-sm">
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Total Reports</span>
@@ -163,7 +173,10 @@ focus:ring-primary/30
             {fetching ? (
               <div className="text-sm text-muted-foreground">Loading reports...</div>
             ) : reports.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No reports submitted yet.</div>
+              <div className="flex flex-col items-center gap-3 py-12 text-center text-muted-foreground">
+                <Inbox className="h-8 w-8" />
+                <div className="text-sm">No reports submitted yet</div>
+              </div>
             ) : (
               reports.map((r) => (
                 <div

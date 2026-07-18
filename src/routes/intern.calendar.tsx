@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { api } from "@/lib/api";
 import { Card, PageHeader } from "@/components/ui-kit";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/intern/calendar")({
@@ -62,6 +62,13 @@ function CalendarPage() {
     } else setMonth(month + 1);
   };
 
+  const goToToday = () => {
+    const now = new Date();
+    setYear(now.getFullYear());
+    setMonth(now.getMonth());
+    setSelected(null);
+  };
+
   const monthName = new Date(year, month, 1).toLocaleDateString(undefined, {
     month: "long",
     year: "numeric",
@@ -82,7 +89,16 @@ function CalendarPage() {
             <ChevronLeft className="h-5 w-5" />
           </button>
 
-          <div className="text-base font-semibold tracking-wide">{monthName}</div>
+          <div className="flex items-center gap-3">
+            <div className="text-base font-semibold tracking-wide">{monthName}</div>
+            <button
+              onClick={goToToday}
+              className="flex items-center gap-1 rounded-lg border px-2.5 py-1 text-xs font-medium text-muted-foreground hover:bg-muted transition"
+            >
+              <CalendarDays className="h-3.5 w-3.5" />
+              Today
+            </button>
+          </div>
 
           <button
             onClick={next}

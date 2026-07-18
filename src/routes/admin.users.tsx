@@ -1,9 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api } from "@/lib/api";
 import { Card } from "@/components/ui-kit";
 import { toast } from "sonner";
-import { Trash2, Save } from "lucide-react";
+import { Trash2, Save, Inbox } from "lucide-react";
 
 export const Route = createFileRoute("/admin/users")({
   component: UsersPage,
@@ -23,6 +23,7 @@ function UsersPage() {
   const [rows, setRows] = useState<Intern[]>([]);
   const [loading, setLoading] = useState(true);
   const [edits, setEdits] = useState<Record<number, number>>({});
+  const [search, setSearch] = useState("");
 
   const load = async () => {
     setLoading(true);
@@ -39,6 +40,13 @@ function UsersPage() {
   useEffect(() => {
     load();
   }, []);
+
+  const filteredRows = useMemo(() => {
+    const q = search.toLowerCase();
+    return rows.filter(
+      (r) => r.fullname.toLowerCase().includes(q) || r.username.toLowerCase().includes(q),
+    );
+  }, [rows, search]);
 
   const goToAttendance = (id: number) => {
     navigate({
@@ -91,12 +99,31 @@ function UsersPage() {
         </p>
       </div>
 
+      {/* SEARCH */}
+      <div className="flex items-center gap-3">
+        <input
+          type="text"
+          placeholder="Search by name or username..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="h-10 w-full max-w-sm rounded-xl border bg-card px-4 text-sm outline-none transition focus:border-primary focus:ring-1 focus:ring-primary/30"
+        />
+        <span className="text-sm text-muted-foreground whitespace-nowrap">
+          {filteredRows.length} intern{filteredRows.length !== 1 ? "s" : ""}
+        </span>
+      </div>
+
       <Card className="overflow-hidden p-0">
         {/* TABLE */}
         {loading ? (
           <div className="p-12 text-center text-muted-foreground">Loading...</div>
-        ) : rows.length === 0 ? (
-          <div className="p-12 text-center text-muted-foreground">No intern accounts found</div>
+        ) : filteredRows.length === 0 ? (
+          <div className="flex flex-col items-center gap-3 py-12 text-center text-muted-foreground">
+            <Inbox className="h-8 w-8" />
+            <div className="text-sm">
+              {rows.length === 0 ? "No intern accounts found" : "No interns match your search"}
+            </div>
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -110,7 +137,7 @@ function UsersPage() {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((r) => (
+                {filteredRows.map((r) => (
                   <tr
                     key={r.id}
                     onClick={() => goToAttendance(r.id)}

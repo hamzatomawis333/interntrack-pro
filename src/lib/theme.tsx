@@ -1,12 +1,42 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 const ACCENT_PRESETS = [
-  { label: "Green", value: "oklch(0.62 0.14 165)", soft: "oklch(0.95 0.04 165)", ring: "oklch(0.62 0.14 165)" },
-  { label: "Blue", value: "oklch(0.55 0.18 250)", soft: "oklch(0.95 0.04 250)", ring: "oklch(0.55 0.18 250)" },
-  { label: "Purple", value: "oklch(0.52 0.18 300)", soft: "oklch(0.95 0.04 300)", ring: "oklch(0.52 0.18 300)" },
-  { label: "Orange", value: "oklch(0.65 0.18 55)", soft: "oklch(0.95 0.06 55)", ring: "oklch(0.65 0.18 55)" },
-  { label: "Red", value: "oklch(0.58 0.2 25)", soft: "oklch(0.95 0.04 25)", ring: "oklch(0.58 0.2 25)" },
-  { label: "Teal", value: "oklch(0.6 0.14 175)", soft: "oklch(0.95 0.04 175)", ring: "oklch(0.6 0.14 175)" },
+  {
+    label: "Green",
+    value: "oklch(0.62 0.14 165)",
+    soft: "oklch(0.95 0.04 165)",
+    ring: "oklch(0.62 0.14 165)",
+  },
+  {
+    label: "Blue",
+    value: "oklch(0.55 0.18 250)",
+    soft: "oklch(0.95 0.04 250)",
+    ring: "oklch(0.55 0.18 250)",
+  },
+  {
+    label: "Purple",
+    value: "oklch(0.52 0.18 300)",
+    soft: "oklch(0.95 0.04 300)",
+    ring: "oklch(0.52 0.18 300)",
+  },
+  {
+    label: "Orange",
+    value: "oklch(0.65 0.18 55)",
+    soft: "oklch(0.95 0.06 55)",
+    ring: "oklch(0.65 0.18 55)",
+  },
+  {
+    label: "Red",
+    value: "oklch(0.58 0.2 25)",
+    soft: "oklch(0.95 0.04 25)",
+    ring: "oklch(0.58 0.2 25)",
+  },
+  {
+    label: "Teal",
+    value: "oklch(0.6 0.14 175)",
+    soft: "oklch(0.95 0.04 175)",
+    ring: "oklch(0.6 0.14 175)",
+  },
 ];
 
 interface ThemeCtx {
@@ -65,7 +95,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const setAccent = (i: number) => setAccentIdx(i);
 
   return (
-    <Ctx.Provider value={{ dark, toggleDark, accentIndex, setAccent, accentPresets: ACCENT_PRESETS }}>
+    <Ctx.Provider
+      value={{ dark, toggleDark, accentIndex, setAccent, accentPresets: ACCENT_PRESETS }}
+    >
       {children}
     </Ctx.Provider>
   );

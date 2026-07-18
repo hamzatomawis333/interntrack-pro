@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { Card, PageHeader } from "@/components/ui-kit";
 import { toast } from "sonner";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 
 export const Route = createFileRoute("/admin/$userId")({
   component: AdminUserAttendancePage,
@@ -79,6 +79,12 @@ function AdminUserAttendancePage() {
     }
   };
 
+  const goToToday = () => {
+    const now = new Date();
+    setYear(now.getFullYear());
+    setMonth(now.getMonth());
+  };
+
   const saveAttendance = async () => {
     if (!selectedDate) return;
 
@@ -97,10 +103,6 @@ function AdminUserAttendancePage() {
       const updated = await api<Attendance[]>(`/admin/interns/${userId}/attendance`);
 
       setRows(updated);
-
-      navigate({
-        to: "/admin/attendance",
-      });
     } catch {
       toast.error("Failed to save attendance");
     }
@@ -128,19 +130,36 @@ function AdminUserAttendancePage() {
           {/* CALENDAR */}
           <div>
             <div className="mb-4 flex items-center justify-between">
-              <button onClick={prev} className="border px-3 py-1 rounded">
-                ←
+              <button
+                onClick={prev}
+                className="flex h-9 w-9 items-center justify-center rounded-lg border hover:bg-muted transition"
+                aria-label="Previous month"
+              >
+                <ChevronLeft className="h-4 w-4" />
               </button>
 
-              <div className="font-semibold">
-                {first.toLocaleDateString(undefined, {
-                  month: "long",
-                  year: "numeric",
-                })}
+              <div className="flex items-center gap-3">
+                <div className="font-semibold">
+                  {first.toLocaleDateString(undefined, {
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </div>
+                <button
+                  onClick={goToToday}
+                  className="flex items-center gap-1 rounded-lg border px-2.5 py-1 text-xs font-medium text-muted-foreground hover:bg-muted transition"
+                >
+                  <CalendarDays className="h-3.5 w-3.5" />
+                  Today
+                </button>
               </div>
 
-              <button onClick={next} className="border px-3 py-1 rounded">
-                →
+              <button
+                onClick={next}
+                className="flex h-9 w-9 items-center justify-center rounded-lg border hover:bg-muted transition"
+                aria-label="Next month"
+              >
+                <ChevronRight className="h-4 w-4" />
               </button>
             </div>
 
@@ -179,6 +198,7 @@ function AdminUserAttendancePage() {
                   <button
                     key={i}
                     disabled={isWeekend}
+                    aria-label={`${dateStr}${record ? ", Present" : isAbsent ? ", Absent" : isWeekend ? ", Weekend" : ""}`}
                     onClick={() => {
                       if (isWeekend) return;
 
@@ -213,15 +233,6 @@ ${isSelected ? "ring-2 ring-cyan-500" : ""}
 ${!isWeekend ? "hover:bg-muted" : ""}
 `}
                   >
-                    <div
-                      className="
-text-xs
-text-muted-foreground
-"
-                    >
-                      {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][weekday]}
-                    </div>
-
                     <div
                       className="
 font-semibold
@@ -277,7 +288,6 @@ text-muted-foreground
             </div>
           </div>
 
-          {/* EDIT PANEL */}
           {/* EDIT PANEL */}
 
           <div className="rounded-xl border p-5">

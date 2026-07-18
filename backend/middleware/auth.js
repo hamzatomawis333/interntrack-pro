@@ -2,7 +2,9 @@ import jwt from "jsonwebtoken";
 
 const SECRET = process.env.JWT_SECRET;
 if (!SECRET || SECRET === "change-me-to-a-long-random-string") {
-  console.warn("WARNING: JWT_SECRET is not set or is using the default value. Set a secure secret in .env");
+  console.warn(
+    "WARNING: JWT_SECRET is not set or is using the default value. Set a secure secret in .env",
+  );
 }
 
 export function signToken(payload) {

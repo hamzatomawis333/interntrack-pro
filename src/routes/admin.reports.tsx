@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { Card } from "@/components/ui-kit";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/admin/reports")({
   component: ReportsPage,
@@ -86,16 +87,10 @@ p-0
 "
       >
         {loading ? (
-          <div
-            className="
-p-12
-
-text-center
-
-text-muted-foreground
-"
-          >
-            Loading...
+          <div className="p-6 space-y-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-16 w-full" />
+            ))}
           </div>
         ) : rows.length === 0 ? (
           <div
@@ -244,6 +239,11 @@ rounded-full
 
 bg-slate-200
 "
+                            role="progressbar"
+                            aria-valuenow={Math.round(pct)}
+                            aria-valuemin={0}
+                            aria-valuemax={100}
+                            aria-label={`${row.fullname} progress: ${pct.toFixed(0)}%`}
                           >
                             <div
                               className="

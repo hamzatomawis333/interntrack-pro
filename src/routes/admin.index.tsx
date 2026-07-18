@@ -11,8 +11,10 @@ import {
   ClipboardList,
   BarChart3,
   FileText,
+  Inbox,
 } from "lucide-react";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/admin/")({
   component: AdminDashboard,
@@ -170,32 +172,43 @@ sm:grid-cols-2
 xl:grid-cols-4
 "
       >
-        <StatCard
-          label="Total Interns"
-          value={stats?.total_interns ?? "—"}
-          icon={<Users className="h-5 w-5" />}
-          tone="primary"
-        />
+        {loading ? (
+          <>
+            <Skeleton className="h-28 rounded-xl" />
+            <Skeleton className="h-28 rounded-xl" />
+            <Skeleton className="h-28 rounded-xl" />
+            <Skeleton className="h-28 rounded-xl" />
+          </>
+        ) : (
+          <>
+            <StatCard
+              label="Total Interns"
+              value={stats?.total_interns ?? "—"}
+              icon={<Users className="h-5 w-5" />}
+              tone="primary"
+            />
 
-        <StatCard
-          label="Present Today"
-          value={stats?.present_today ?? "—"}
-          icon={<CheckCircle2 className="h-5 w-5" />}
-          tone="success"
-        />
+            <StatCard
+              label="Present Today"
+              value={stats?.present_today ?? "—"}
+              icon={<CheckCircle2 className="h-5 w-5" />}
+              tone="success"
+            />
 
-        <StatCard
-          label="Absent Today"
-          value={stats?.absent_today ?? "—"}
-          icon={<XCircle className="h-5 w-5" />}
-          tone="danger"
-        />
+            <StatCard
+              label="Absent Today"
+              value={stats?.absent_today ?? "—"}
+              icon={<XCircle className="h-5 w-5" />}
+              tone="danger"
+            />
 
-        <StatCard
-          label="Rendered Hours"
-          value={`${Number(stats?.total_rendered_hours ?? 0).toFixed(0)} h`}
-          icon={<Clock className="h-5 w-5" />}
-        />
+            <StatCard
+              label="Rendered Hours"
+              value={`${Number(stats?.total_rendered_hours ?? 0).toFixed(0)} h`}
+              icon={<Clock className="h-5 w-5" />}
+            />
+          </>
+        )}
       </div>
 
       {/* QUICK */}
@@ -287,7 +300,16 @@ font-semibold
         </div>
 
         {loading ? (
-          <div className="p-10">Loading...</div>
+          <div className="p-6 space-y-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-12 w-full" />
+            ))}
+          </div>
+        ) : !stats?.recent?.length ? (
+          <div className="flex flex-col items-center gap-3 py-12 text-center text-muted-foreground">
+            <Inbox className="h-8 w-8" />
+            <div className="text-sm">No recent activity</div>
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table
@@ -322,7 +344,7 @@ text-slate-500
               </thead>
 
               <tbody>
-                {stats?.recent.map((row) => (
+                {stats.recent.map((row) => (
                   <tr
                     key={row.id}
                     className="

@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth, type AuthUser } from "@/lib/auth";
 import { api } from "@/lib/api";
-import { Button, Input } from "@/components/ui-kit";
+import { Button, Input, PasswordInput } from "@/components/ui-kit";
 import { Clock3, ShieldCheck, GraduationCap } from "lucide-react";
 import { toast } from "sonner";
 
@@ -170,9 +170,8 @@ function AuthPage() {
               className="text-black"
             />
 
-            <Input
+            <PasswordInput
               label="Password"
-              type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter password"

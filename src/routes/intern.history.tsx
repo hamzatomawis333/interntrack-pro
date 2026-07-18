@@ -80,7 +80,6 @@ function HistoryPage() {
 
   return (
     <div className="space-y-6">
-      {/* HEADER BUTTON FIX */}
       <PageHeader
         title="Attendance history"
         description="View your full attendance record and add past entries from your logbook."
@@ -102,7 +101,6 @@ function HistoryPage() {
               required
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="text-black placeholder:text-gray-400"
             />
 
             <Input
@@ -111,7 +109,6 @@ function HistoryPage() {
               required
               value={timeIn}
               onChange={(e) => setTimeIn(e.target.value)}
-              className="text-black placeholder:text-gray-400"
             />
 
             <Input
@@ -120,10 +117,8 @@ function HistoryPage() {
               required
               value={timeOut}
               onChange={(e) => setTimeOut(e.target.value)}
-              className="text-black placeholder:text-gray-400"
             />
 
-            {/* SAVE BUTTON FIX */}
             <Button type="submit" className="text-white">
               Save entry
             </Button>
@@ -131,7 +126,7 @@ function HistoryPage() {
         </Card>
       )}
 
-      {/* WEEKLY SUMMARY (unchanged) */}
+      {/* WEEKLY SUMMARY */}
       <Card>
         <div className="mb-4 flex items-center justify-between">
           <div>
@@ -188,7 +183,7 @@ function HistoryPage() {
         </div>
       </Card>
 
-      {/* TABLE (unchanged except small safety fix) */}
+      {/* TABLE */}
       <Card className="p-0">
         <div className="border-b border-border px-5 py-4 text-sm font-semibold">All entries</div>
 

@@ -1,4 +1,5 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
@@ -114,6 +115,42 @@ export function Input({
         }
         {...props}
       />
+      {error && <span className="mt-1 block text-xs text-destructive">{error}</span>}
+    </label>
+  );
+}
+
+export function PasswordInput({
+  label,
+  error,
+  className = "",
+  ...props
+}: Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> & {
+  label?: string;
+  error?: string;
+}) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <label className="block text-white/90">
+      {label && <span className="mb-1.5 block text-sm font-medium">{label}</span>}
+      <div className="relative">
+        <input
+          type={visible ? "text" : "password"}
+          className={
+            "h-11 w-full rounded-xl border border-input bg-card px-3.5 pr-10 text-sm shadow-(--shadow-soft) outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 " +
+            className
+          }
+          {...props}
+        />
+        <button
+          type="button"
+          onClick={() => setVisible((v) => !v)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+          tabIndex={-1}
+        >
+          {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+        </button>
+      </div>
       {error && <span className="mt-1 block text-xs text-destructive">{error}</span>}
     </label>
   );

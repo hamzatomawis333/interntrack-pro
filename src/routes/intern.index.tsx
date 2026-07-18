@@ -5,7 +5,7 @@ import { api } from "@/lib/api";
 import { Card, PageHeader, StatCard } from "@/components/ui-kit";
 import { fmtDateLong, fmtTime, isWeekend } from "@/lib/date-utils";
 import { toast } from "sonner";
-import { LogIn, LogOut, Clock, CalendarDays, Timer, Target } from "lucide-react";
+import { LogIn, LogOut, Clock, CalendarDays, Timer, Target, TimerIcon } from "lucide-react";
 
 export const Route = createFileRoute("/intern/")({
   component: InternDashboard,
@@ -116,7 +116,7 @@ function InternDashboard() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`Welcome, ${user?.fullname?.split(" ")[0] ?? "Intern"} 👋`}
+        title={`Welcome, ${user?.fullname?.split(" ")[0] ?? "Intern"}`}
         description={fmtDateLong(now)}
       />
 
@@ -154,6 +154,15 @@ function InternDashboard() {
             <button
               onClick={handleTimeIn}
               disabled={!canTimeIn || acting}
+              title={
+                !canTimeIn
+                  ? weekend
+                    ? "Weekend"
+                    : today?.time_in
+                      ? "Already timed in"
+                      : ""
+                  : "Time in now"
+              }
               className="group flex h-24 items-center justify-center gap-3 rounded-2xl bg-primary text-lg font-semibold text-primary-foreground shadow-(--shadow-soft) transition-all hover:shadow-(--shadow-elevated) disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
             >
               <LogIn className="h-6 w-6" />
@@ -163,6 +172,15 @@ function InternDashboard() {
             <button
               onClick={handleTimeOut}
               disabled={!canTimeOut || acting}
+              title={
+                !canTimeOut
+                  ? !today?.time_in
+                    ? "Not timed in yet"
+                    : today?.time_out
+                      ? "Already timed out"
+                      : ""
+                  : "Time out now"
+              }
               className="group flex h-24 items-center justify-center gap-3 rounded-2xl border-2 border-primary bg-card text-lg font-semibold text-primary transition-all hover:bg-primary-soft disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground"
             >
               TIME OUT
@@ -213,7 +231,14 @@ function InternDashboard() {
           <div className="text-2xl font-bold text-primary">{Math.round(progress)}%</div>
         </div>
 
-        <div className="mt-6 h-4 overflow-hidden rounded-full bg-muted">
+        <div
+          className="mt-6 h-4 overflow-hidden rounded-full bg-muted"
+          role="progressbar"
+          aria-valuenow={Math.round(progress)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`Internship progress: ${Math.round(progress)}%`}
+        >
           <div
             className="
 h-full
@@ -249,7 +274,7 @@ duration-700
             </div>
           </div>
 
-          <div className="text-3xl">⏱️</div>
+          <TimerIcon className="h-6 w-6 text-muted-foreground" />
         </div>
 
         <div className="mt-6">
@@ -258,7 +283,14 @@ duration-700
           <div className="mt-1 text-sm text-muted-foreground">Target: 8 hours</div>
         </div>
 
-        <div className="mt-6 h-4 overflow-hidden rounded-full bg-muted">
+        <div
+          className="mt-6 h-4 overflow-hidden rounded-full bg-muted"
+          role="progressbar"
+          aria-valuenow={Math.round(todayProgress)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`Today's session progress: ${Math.round(todayProgress)}%`}
+        >
           <div
             className="
 h-full

@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { Button, Input } from "@/components/ui-kit";
+import { Button, PasswordInput } from "@/components/ui-kit";
 import { ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
@@ -59,24 +59,21 @@ function ChangePasswordPage() {
           </p>
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-            <Input
+            <PasswordInput
               label="Current password"
-              type="password"
               required
               value={current}
               onChange={(e) => setCurrent(e.target.value)}
             />
-            <Input
+            <PasswordInput
               label="New password"
-              type="password"
               required
               value={next}
               onChange={(e) => setNext(e.target.value)}
               placeholder="Min. 8 characters"
             />
-            <Input
+            <PasswordInput
               label="Confirm new password"
-              type="password"
               required
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}

@@ -18,7 +18,6 @@ function IndexRedirect() {
       return;
     }
 
-    // ONLY ROLE-BASED ROUTING
     if (user.role === "admin") {
       navigate({ to: "/admin", replace: true });
     } else {
@@ -27,8 +26,16 @@ function IndexRedirect() {
   }, [user, loading, navigate]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+    <div
+      className="flex min-h-screen items-center justify-center bg-background"
+      role="status"
+      aria-label="Loading"
+    >
+      <div
+        className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"
+        aria-hidden="true"
+      />
+      <span className="sr-only">Loading...</span>
     </div>
   );
 }
