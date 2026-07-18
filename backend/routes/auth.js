@@ -50,29 +50,39 @@ router.post("/login", async (req, res) => {
 // 👇 ADD LANG NATIN ITO
 router.post("/register", async (req, res) => {
   try {
-    const { fullname, username, password } = req.body || {};
+    const { fullname, username, email, password } = req.body || {};
 
-    if (!fullname || !username || !password) {
+    if (!fullname || !username || !email || !password) {
       return res.status(400).json({ message: "Missing fields" });
     }
 
-    // check duplicate username
-    const [existing] = await pool.query("SELECT * FROM users WHERE username = ?", [username]);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Invalid email address" });
+    }
 
-    if (existing.length > 0) {
+    const [existingUser] = await pool.query("SELECT * FROM users WHERE username = ?", [username]);
+    if (existingUser.length > 0) {
       return res.status(409).json({ message: "Username already exists" });
+    }
+
+    const [existingEmail] = await pool.query("SELECT * FROM users WHERE email = ?", [email]);
+    if (existingEmail.length > 0) {
+      return res.status(409).json({ message: "Email already exists" });
     }
 
     const hashed = await bcrypt.hash(password, 10);
 
     const [result] = await pool.query(
-      `INSERT INTO users (fullname, username, password, role, required_hours, must_change_password)
-       VALUES (?, ?, ?, 'intern', 486, 0)`,
-      [fullname, username, hashed],
+      `INSERT INTO users (fullname, username, email, password, role, required_hours, must_change_password)
+       VALUES (?, ?, ?, ?, 'intern', 486, 0)`,
+      [fullname, username, email, hashed],
     );
 
-    const email = registrationEmail(fullname, username);
-    sendNotification(null, email.subject, email.body, "registration").catch(() => {});
+    const emailContent = registrationEmail(fullname, username);
+    sendNotification(email, emailContent.subject, emailContent.body, "registration").catch(
+      () => {},
+    );
 
     return res.status(201).json({
       message: "Account created",

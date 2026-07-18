@@ -14,12 +14,24 @@ function RegisterPage() {
 
   const [fullname, setFullname] = useState("");
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!email.trim()) {
+      toast.error("Email address is required.");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Invalid email address.");
+      return;
+    }
 
     if (password.length < 8) {
       toast.error("Password must be at least 8 characters.");
@@ -40,6 +52,7 @@ function RegisterPage() {
         body: {
           fullname,
           username,
+          email,
           password,
         },
       });
@@ -118,6 +131,17 @@ function RegisterPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="juandc"
+              labelClassName="text-white/90"
+              className="text-white"
+            />
+
+            <Input
+              label="Email Address"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
               labelClassName="text-white/90"
               className="text-white"
             />

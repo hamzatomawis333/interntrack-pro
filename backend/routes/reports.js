@@ -38,9 +38,11 @@ router.post("/", requireAuth(), async (req, res) => {
       [user_id, report_text, report_date],
     );
 
-    const [[user]] = await pool.query("SELECT fullname FROM users WHERE id = ?", [user_id]);
-    const email = reportEmail(user?.fullname || "Intern", report_text);
-    sendNotification(null, email.subject, email.body, "report").catch(() => {});
+    const [[user]] = await pool.query("SELECT fullname, email FROM users WHERE id = ?", [user_id]);
+    const emailContent = reportEmail(user?.fullname || "Intern", report_text);
+    sendNotification(user?.email || null, emailContent.subject, emailContent.body, "report").catch(
+      () => {},
+    );
 
     res.json({
       message: "Report saved successfully",

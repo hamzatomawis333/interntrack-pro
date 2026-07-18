@@ -98,9 +98,21 @@ router.post("/time-out", requireAuth(["intern"]), async (req, res) => {
     [t.time, hours.toFixed(2), row.id],
   );
 
-  const [[user]] = await pool.query("SELECT fullname FROM users WHERE id = ?", [req.user.id]);
-  const email = attendanceEmail(user?.fullname || "Intern", "Time Out", hours.toFixed(2), t.date);
-  sendNotification(null, email.subject, email.body, "attendance").catch(() => {});
+  const [[user]] = await pool.query("SELECT fullname, email FROM users WHERE id = ?", [
+    req.user.id,
+  ]);
+  const emailContent = attendanceEmail(
+    user?.fullname || "Intern",
+    "Time Out",
+    hours.toFixed(2),
+    t.date,
+  );
+  sendNotification(
+    user?.email || null,
+    emailContent.subject,
+    emailContent.body,
+    "attendance",
+  ).catch(() => {});
 
   res.json({ message: "Time out recorded", time: t.time, total_hours: hours });
 });

@@ -1,5 +1,6 @@
 // ============================================================
-//  Migration: Add audit_logs, profile_pictures, email_config
+//  Migration: Add audit_logs, profile_pictures, email_config,
+//             users.email
 //  Run: node scripts/migrate.js
 // ============================================================
 import "dotenv/config";
@@ -70,6 +71,19 @@ console.log("Running migrations...");
 
 for (const sql of migrations) {
   await conn.query(sql);
+}
+
+// Add email column to users if it doesn't exist
+const [cols] = await conn.query("SHOW COLUMNS FROM users LIKE 'email'");
+if (cols.length === 0) {
+  await conn.query("ALTER TABLE users ADD COLUMN email VARCHAR(255) NULL AFTER username");
+  console.log("✔ Added email column to users table");
+}
+
+const [idxRows] = await conn.query("SHOW INDEX FROM users WHERE Key_name = 'uniq_users_email'");
+if (idxRows.length === 0) {
+  await conn.query("ALTER TABLE users ADD UNIQUE INDEX uniq_users_email (email)");
+  console.log("✔ Added unique index on users.email");
 }
 
 console.log("✔ All migrations completed successfully.");
