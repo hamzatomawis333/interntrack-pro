@@ -209,10 +209,10 @@ function AuthPage() {
       {/* ADMIN MODAL */}
       {showAdminPrompt && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50">
-          <div className="w-[320px] rounded-xl bg-white p-6 text-center shadow-lg">
-            <h2 className="text-lg font-semibold">Change Password?</h2>
+          <div className="w-[320px] rounded-xl border border-border bg-card p-6 text-center shadow-lg">
+            <h2 className="text-lg font-semibold text-foreground">Change Password?</h2>
 
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-muted-foreground">
               Do you want to update your admin password now?
             </p>
 
@@ -225,7 +225,7 @@ function AuthPage() {
               </button>
 
               <button
-                className="rounded-xl border px-3 py-2"
+                className="rounded-xl border border-border px-3 py-2 text-foreground hover:bg-muted transition"
                 onClick={() => {
                   localStorage.setItem("admin_prompt_seen", "true");
                   setShowAdminPrompt(false);

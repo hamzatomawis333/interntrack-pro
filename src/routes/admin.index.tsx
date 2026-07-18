@@ -322,7 +322,7 @@ w-full
               <thead>
                 <tr
                   className="
-bg-slate-50
+bg-muted
 
 text-xs
 
@@ -330,7 +330,7 @@ uppercase
 
 tracking-wider
 
-text-slate-500
+text-muted-foreground
 "
                 >
                   <th className="px-6 py-4 text-left">Intern</th>
@@ -352,7 +352,7 @@ text-slate-500
                     className="
 border-t
 
-hover:bg-slate-50
+hover:bg-muted
 
 transition
 "

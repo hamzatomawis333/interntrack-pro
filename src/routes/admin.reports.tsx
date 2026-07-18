@@ -116,7 +116,7 @@ w-full
                   className="
 border-b
 
-bg-slate-50
+bg-muted
 
 text-xs
 
@@ -124,7 +124,7 @@ uppercase
 
 tracking-[0.12em]
 
-text-slate-500
+text-muted-foreground
 "
                 >
                   <th className="px-6 py-5 text-left">Intern</th>
@@ -153,7 +153,7 @@ text-slate-500
                       className="
 border-b
 
-hover:bg-slate-50
+hover:bg-muted
 
 transition
 "
@@ -237,7 +237,7 @@ overflow-hidden
 
 rounded-full
 
-bg-slate-200
+bg-muted
 "
                             role="progressbar"
                             aria-valuenow={Math.round(pct)}

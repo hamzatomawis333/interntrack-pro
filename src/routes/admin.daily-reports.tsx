@@ -140,7 +140,7 @@ function DailyReportsPage() {
                   text-left
                   transition
 
-                  ${selectedUserId === i.user_id ? "border-blue-500 bg-blue-50" : "hover:bg-muted"}
+                  ${selectedUserId === i.user_id ? "border-primary bg-primary/10 text-primary" : "hover:bg-muted"}
                   `}
                 >
                   <div className="font-semibold">{i.fullname}</div>

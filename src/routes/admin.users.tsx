@@ -128,7 +128,7 @@ function UsersPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b bg-slate-50">
+                <tr className="border-b bg-muted">
                   <th className="px-6 py-4 text-left">Intern</th>
                   <th className="px-6 py-4 text-left">Username</th>
                   <th className="px-6 py-4 text-left">Required Hours</th>
@@ -144,7 +144,7 @@ function UsersPage() {
                     className="
                       cursor-pointer
                       border-b
-                      hover:bg-slate-50
+                      hover:bg-muted
                       transition
                     "
                   >
@@ -241,13 +241,13 @@ function UsersPage() {
                             gap-1.5
                             rounded-md
                             border
-                            border-red-200
-                            bg-red-50
+                            border-destructive/30
+                            bg-destructive/10
                             px-3 py-2
                             text-xs
                             font-medium
-                            text-red-600
-                            hover:bg-red-100
+                            text-destructive
+                            hover:bg-destructive/20
                             transition
                           "
                         >
