@@ -1,6 +1,5 @@
 import * as XLSX from "xlsx";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
 export function exportToExcel(
   data: Record<string, unknown>[],
@@ -13,7 +12,7 @@ export function exportToExcel(
   XLSX.writeFile(wb, `${filename}.xlsx`);
 }
 
-export function exportToPDF(options: {
+export async function exportToPDF(options: {
   title: string;
   subtitle?: string;
   headers: string[];
@@ -22,37 +21,148 @@ export function exportToPDF(options: {
   filename: string;
 }) {
   const { title, subtitle, headers, rows, totalRecords, filename } = options;
-  const doc = new jsPDF("landscape", "mm", "a4");
 
-  doc.setFontSize(18);
-  doc.text(title, 14, 18);
+  const doc = await PDFDocument.create();
+  const font = await doc.embedFont(StandardFonts.Helvetica);
+  const fontBold = await doc.embedFont(StandardFonts.HelveticaBold);
 
-  doc.setFontSize(10);
-  doc.setTextColor(100);
-  const dateLine = `Generated: ${new Date().toLocaleDateString("en-US", {
+  const pageWidth = 841.89;
+  const pageHeight = 595.28;
+  const margin = 40;
+  const usableWidth = pageWidth - margin * 2;
+
+  let page = doc.addPage([pageWidth, pageHeight]);
+  let y = pageHeight - margin;
+
+  // Title
+  page.drawText(title, {
+    x: margin,
+    y,
+    size: 18,
+    font: fontBold,
+    color: rgb(0, 0, 0),
+  });
+  y -= 28;
+
+  // Subtitle / date
+  const dateStr = `Generated: ${new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
   })}`;
-  doc.text(dateLine, 14, 26);
+  page.drawText(dateStr, {
+    x: margin,
+    y,
+    size: 10,
+    font,
+    color: rgb(0.4, 0.4, 0.4),
+  });
+  y -= 16;
 
   if (subtitle) {
-    doc.text(subtitle, 14, 32);
+    page.drawText(subtitle, {
+      x: margin,
+      y,
+      size: 10,
+      font,
+      color: rgb(0.4, 0.4, 0.4),
+    });
+    y -= 20;
+  } else {
+    y -= 6;
   }
 
-  autoTable(doc, {
-    head: [headers],
-    body: rows,
-    startY: subtitle ? 38 : 32,
-    styles: { fontSize: 8 },
-    headStyles: { fillColor: [15, 23, 42] },
-    didDrawPage: (data) => {
-      const pageHeight = doc.internal.pageSize.height;
-      doc.setFontSize(8);
-      doc.setTextColor(150);
-      doc.text(`Total records: ${totalRecords}`, 14, pageHeight - 10);
-    },
+  // Table
+  const colCount = headers.length;
+  const colWidth = usableWidth / colCount;
+  const rowHeight = 18;
+  const headerHeight = 22;
+  const fontSize = 8;
+
+  const drawTableHeader = (p: ReturnType<typeof doc.addPage>, yPos: number) => {
+    // Header background
+    p.drawRectangle({
+      x: margin,
+      y: yPos - headerHeight + 4,
+      width: usableWidth,
+      height: headerHeight,
+      color: rgb(0.06, 0.09, 0.16),
+    });
+
+    headers.forEach((h, i) => {
+      p.drawText(h, {
+        x: margin + i * colWidth + 6,
+        y: yPos - 10,
+        size: fontSize,
+        font: fontBold,
+        color: rgb(1, 1, 1),
+      });
+    });
+
+    return yPos - headerHeight;
+  };
+
+  y = drawTableHeader(page, y);
+
+  // Rows
+  rows.forEach((row, rowIndex) => {
+    if (y - rowHeight < margin + 20) {
+      // Footer on current page
+      page.drawText(`Total records: ${totalRecords}`, {
+        x: margin,
+        y: margin,
+        size: 8,
+        font,
+        color: rgb(0.5, 0.5, 0.5),
+      });
+
+      page = doc.addPage([pageWidth, pageHeight]);
+      y = pageHeight - margin;
+      y = drawTableHeader(page, y);
+    }
+
+    // Alternating row background
+    if (rowIndex % 2 === 0) {
+      page.drawRectangle({
+        x: margin,
+        y: y - rowHeight + 6,
+        width: usableWidth,
+        height: rowHeight,
+        color: rgb(0.96, 0.96, 0.96),
+      });
+    }
+
+    row.forEach((cell, i) => {
+      const text = String(cell);
+      const maxChars = Math.floor(colWidth / 4.5);
+      const truncated = text.length > maxChars ? text.slice(0, maxChars - 1) + "\u2026" : text;
+      page.drawText(truncated, {
+        x: margin + i * colWidth + 6,
+        y: y - 10,
+        size: fontSize,
+        font,
+        color: rgb(0.15, 0.15, 0.15),
+      });
+    });
+
+    y -= rowHeight;
   });
 
-  doc.save(`${filename}.pdf`);
+  // Footer
+  page.drawText(`Total records: ${totalRecords}`, {
+    x: margin,
+    y: margin,
+    size: 8,
+    font,
+    color: rgb(0.5, 0.5, 0.5),
+  });
+
+  const pdfBytes = await doc.save();
+  const blob = new Blob([pdfBytes], { type: "application/pdf" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${filename}.pdf`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
