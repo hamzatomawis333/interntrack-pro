@@ -108,6 +108,7 @@ function RegisterPage() {
               value={fullname}
               onChange={(e) => setFullname(e.target.value)}
               placeholder="Juan Dela Cruz"
+              labelClassName="text-white/90"
               className="text-black"
             />
 
@@ -117,6 +118,7 @@ function RegisterPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="juandc"
+              labelClassName="text-white/90"
               className="text-black"
             />
 
@@ -127,6 +129,7 @@ function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Min. 8 characters"
+                labelClassName="text-white/90"
                 className="text-black"
               />
 
@@ -136,6 +139,7 @@ function RegisterPage() {
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
                 placeholder="Repeat"
+                labelClassName="text-white/90"
                 className="text-black"
               />
             </div>

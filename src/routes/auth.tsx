@@ -167,7 +167,8 @@ function AuthPage() {
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter username"
               required
-              className="text-black"
+              labelClassName="text-white/90"
+              className="text-white"
             />
 
             <PasswordInput
@@ -176,7 +177,8 @@ function AuthPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter password"
               required
-              className="text-black"
+              labelClassName="text-white/90"
+              className="text-white"
             />
 
             <Button

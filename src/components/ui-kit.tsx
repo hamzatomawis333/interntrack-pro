@@ -102,12 +102,19 @@ export function Button({
 export function Input({
   label,
   error,
+  labelClassName = "",
   className = "",
   ...props
-}: React.InputHTMLAttributes<HTMLInputElement> & { label?: string; error?: string }) {
+}: React.InputHTMLAttributes<HTMLInputElement> & {
+  label?: string;
+  error?: string;
+  labelClassName?: string;
+}) {
   return (
-    <label className="block text-white/90">
-      {label && <span className="mb-1.5 block text-sm font-medium">{label}</span>}
+    <label className="block">
+      {label && (
+        <span className={"mb-1.5 block text-sm font-medium " + labelClassName}>{label}</span>
+      )}
       <input
         className={
           "h-11 w-full rounded-xl border border-input bg-card px-3.5 text-sm shadow-(--shadow-soft) outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 " +
@@ -123,16 +130,20 @@ export function Input({
 export function PasswordInput({
   label,
   error,
+  labelClassName = "",
   className = "",
   ...props
 }: Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> & {
   label?: string;
   error?: string;
+  labelClassName?: string;
 }) {
   const [visible, setVisible] = useState(false);
   return (
-    <label className="block text-white/90">
-      {label && <span className="mb-1.5 block text-sm font-medium">{label}</span>}
+    <label className="block">
+      {label && (
+        <span className={"mb-1.5 block text-sm font-medium " + labelClassName}>{label}</span>
+      )}
       <div className="relative">
         <input
           type={visible ? "text" : "password"}
