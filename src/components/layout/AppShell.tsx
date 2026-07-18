@@ -14,6 +14,7 @@ import {
   Palette,
   Menu,
   X,
+  Settings,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui-kit";
@@ -42,6 +43,7 @@ const adminNav: NavItem[] = [
     icon: <FileText className="h-4 w-4" />,
   },
   { to: "/admin/users", label: "Manage Interns", icon: <Users className="h-4 w-4" /> },
+  { to: "/admin/settings", label: "Settings", icon: <Settings className="h-4 w-4" /> },
 ];
 
 const internNav: NavItem[] = [
@@ -49,6 +51,7 @@ const internNav: NavItem[] = [
   { to: "/intern/history", label: "History", icon: <ClipboardList className="h-4 w-4" /> },
   { to: "/intern/calendar", label: "Calendar", icon: <BarChart3 className="h-4 w-4" /> },
   { to: "/intern/reports", label: "Daily Report", icon: <FileText className="h-4 w-4" /> },
+  { to: "/intern/settings", label: "Settings", icon: <Settings className="h-4 w-4" /> },
 ];
 
 export function AppShell({
@@ -228,10 +231,13 @@ export function AppShell({
         </div>
 
         {/* USER INFO */}
-        <div className="rounded-xl bg-white/8 px-3 py-2.5">
+        <Link
+          to={`/${variant}/settings` as never}
+          className="mb-3 block rounded-xl bg-white/8 px-3 py-2.5 transition hover:bg-white/12 cursor-pointer"
+        >
           <div className="text-sm font-medium text-white">{user?.fullname}</div>
           <div className="text-xs text-white/50">@{user?.username}</div>
-        </div>
+        </Link>
 
         <div className="mt-2">
           <button

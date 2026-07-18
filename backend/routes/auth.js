@@ -122,4 +122,34 @@ router.post("/change-password", async (req, res) => {
   }
 });
 
+router.put("/profile", async (req, res) => {
+  try {
+    const header = req.headers.authorization || "";
+    const token = header.startsWith("Bearer ") ? header.slice(7) : null;
+
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+    const SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
+    const payload = jwt.verify(token, SECRET);
+
+    const { fullname } = req.body || {};
+
+    if (!fullname || !fullname.trim()) {
+      return res.status(400).json({ message: "Full name is required" });
+    }
+
+    await pool.query("UPDATE users SET fullname = ? WHERE id = ?", [fullname.trim(), payload.id]);
+
+    const [rows] = await pool.query(
+      "SELECT id, fullname, username, role, required_hours, must_change_password FROM users WHERE id = ?",
+      [payload.id],
+    );
+
+    return res.json({ message: "Profile updated", user: rows[0] });
+  } catch (err) {
+    console.error("UPDATE PROFILE ERROR:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
 export default router;

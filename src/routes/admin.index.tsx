@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { api } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 import { Card, StatCard } from "@/components/ui-kit";
 import {
   Users,
@@ -38,6 +39,7 @@ interface Stats {
 }
 
 function AdminDashboard() {
+  const { user } = useAuth();
   const [stats, setStats] = useState<Stats | null>(null);
 
   const [loading, setLoading] = useState<boolean>(true);
@@ -142,7 +144,7 @@ text-4xl
 font-bold
 "
             >
-              Admin Dashboard
+              {user?.fullname || "Admin"}
             </h1>
 
             <p
