@@ -171,7 +171,11 @@ focus:ring-primary/30
 
           <div className="max-h-[520px] space-y-3 overflow-auto p-4">
             {fetching ? (
-              <div className="text-sm text-muted-foreground">Loading reports...</div>
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-20 w-full animate-pulse rounded-lg bg-muted" />
+                ))}
+              </div>
             ) : reports.length === 0 ? (
               <div className="flex flex-col items-center gap-3 py-12 text-center text-muted-foreground">
                 <Inbox className="h-8 w-8" />

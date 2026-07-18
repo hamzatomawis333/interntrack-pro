@@ -32,14 +32,14 @@ export function StatCard({
     danger: "bg-[oklch(0.95_0.06_25)] text-[oklch(0.5_0.18_25)]",
   }[tone];
   return (
-    <Card className="flex items-start justify-between gap-4">
+    <Card className="flex items-start justify-between gap-4 transition-all duration-200 hover:shadow-[var(--shadow-elevated)] hover:-translate-y-0.5">
       <div>
         <div className="text-sm font-medium text-muted-foreground">{label}</div>
-        <div className="mt-2 text-3xl font-semibold tracking-tight">{value}</div>
+        <div className="mt-2 text-3xl font-semibold tracking-tight tabular-nums">{value}</div>
         {hint && <div className="mt-1 text-xs text-muted-foreground">{hint}</div>}
       </div>
       {icon && (
-        <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${toneClass}`}>
+        <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${toneClass}`}>
           {icon}
         </div>
       )}

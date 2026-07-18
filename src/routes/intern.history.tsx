@@ -188,7 +188,11 @@ function HistoryPage() {
         <div className="border-b border-border px-5 py-4 text-sm font-semibold">All entries</div>
 
         {loading ? (
-          <div className="p-8 text-center text-sm text-muted-foreground">Loading…</div>
+          <div className="p-6 space-y-3">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-12 w-full animate-pulse rounded-lg bg-muted" />
+            ))}
+          </div>
         ) : rows.length === 0 ? (
           <div className="p-10 text-center text-sm text-muted-foreground">No entries yet.</div>
         ) : (
