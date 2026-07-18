@@ -117,7 +117,7 @@ export function Input({
       )}
       <input
         className={
-          "h-11 w-full rounded-xl border border-input bg-card px-3.5 text-sm shadow-(--shadow-soft) outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 " +
+          "h-11 w-full rounded-xl border border-input bg-card px-3.5 text-sm text-foreground shadow-(--shadow-soft) outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 " +
           className
         }
         {...props}
@@ -148,7 +148,7 @@ export function PasswordInput({
         <input
           type={visible ? "text" : "password"}
           className={
-            "h-11 w-full rounded-xl border border-input bg-card px-3.5 pr-10 text-sm shadow-(--shadow-soft) outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 " +
+            "h-11 w-full rounded-xl border border-input bg-card px-3.5 pr-10 text-sm text-foreground shadow-(--shadow-soft) outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 " +
             className
           }
           {...props}

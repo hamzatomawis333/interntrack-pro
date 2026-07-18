@@ -168,7 +168,6 @@ function AuthPage() {
               placeholder="Enter username"
               required
               labelClassName="text-white/90"
-              className="text-white"
             />
 
             <PasswordInput
@@ -178,7 +177,6 @@ function AuthPage() {
               placeholder="Enter password"
               required
               labelClassName="text-white/90"
-              className="text-white"
             />
 
             <Button
