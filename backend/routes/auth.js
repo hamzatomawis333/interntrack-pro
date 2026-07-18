@@ -5,6 +5,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { logAudit } from "../services/audit.js";
 import { sendNotification, registrationEmail } from "../services/email.js";
+import { createNotification } from "./notifications.js";
 
 const router = express.Router();
 
@@ -83,6 +84,12 @@ router.post("/register", async (req, res) => {
     sendNotification(email, emailContent.subject, emailContent.body, "registration").catch(
       () => {},
     );
+    createNotification(
+      "registration",
+      "New Intern Registered",
+      `${fullname} has registered with username @${username}`,
+      "/admin/users",
+    ).catch(() => {});
 
     return res.status(201).json({
       message: "Account created",

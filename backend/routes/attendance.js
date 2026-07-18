@@ -2,6 +2,7 @@ import { Router } from "express";
 import { pool } from "../db.js";
 import { requireAuth } from "../middleware/auth.js";
 import { sendNotification, attendanceEmail } from "../services/email.js";
+import { createNotification } from "./notifications.js";
 
 const router = Router();
 
@@ -112,6 +113,12 @@ router.post("/time-out", requireAuth(["intern"]), async (req, res) => {
     emailContent.subject,
     emailContent.body,
     "attendance",
+  ).catch(() => {});
+  createNotification(
+    "attendance",
+    "Attendance Recorded",
+    `${user?.fullname || "Intern"} timed out — ${hours.toFixed(2)}h rendered today`,
+    "/admin/attendance",
   ).catch(() => {});
 
   res.json({ message: "Time out recorded", time: t.time, total_hours: hours });

@@ -9,6 +9,7 @@ import adminDailyReportsRoutes from "./routes/adminDailyReports.js";
 import auditLogsRoutes from "./routes/auditLogs.js";
 import profilePicturesRoutes from "./routes/profilePictures.js";
 import emailConfigRoutes from "./routes/emailConfig.js";
+import notificationsRoutes from "./routes/notifications.js";
 
 dotenv.config();
 
@@ -44,6 +45,7 @@ app.use("/api/reports", reportRoutes);
 app.use("/api/admin/daily-reports", adminDailyReportsRoutes);
 app.use("/api/admin", auditLogsRoutes);
 app.use("/api/admin", emailConfigRoutes);
+app.use("/api/admin", notificationsRoutes);
 app.use("/api", profilePicturesRoutes);
 app.use("/api/admin", adminRoutes);
 

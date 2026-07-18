@@ -70,6 +70,15 @@ router.post("/mark-seen/:id", requireAuth(["admin"]), async (req, res) => {
       [userId],
     );
 
+    await pool.query(
+      `
+      UPDATE notifications
+      SET is_read = 1
+      WHERE link = '/admin/daily-reports'
+        AND is_read = 0
+      `,
+    );
+
     res.json({
       success: true,
     });

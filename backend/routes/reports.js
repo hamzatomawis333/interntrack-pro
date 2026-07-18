@@ -2,6 +2,7 @@ import express from "express";
 import { pool } from "../db.js";
 import { requireAuth } from "../middleware/auth.js";
 import { sendNotification, reportEmail } from "../services/email.js";
+import { createNotification } from "./notifications.js";
 
 const router = express.Router();
 
@@ -43,6 +44,13 @@ router.post("/", requireAuth(), async (req, res) => {
     sendNotification(user?.email || null, emailContent.subject, emailContent.body, "report").catch(
       () => {},
     );
+    const preview = report_text.length > 60 ? report_text.slice(0, 60) + "…" : report_text;
+    createNotification(
+      "daily_report",
+      "Daily Report Submitted",
+      `${user?.fullname || "Intern"} submitted a report: "${preview}"`,
+      "/admin/daily-reports",
+    ).catch(() => {});
 
     res.json({
       message: "Report saved successfully",

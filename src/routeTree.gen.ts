@@ -24,6 +24,7 @@ import { Route as InternCalendarRouteImport } from './routes/intern.calendar'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
+import { Route as AdminNotificationsRouteImport } from './routes/admin.notifications'
 import { Route as AdminDailyReportsRouteImport } from './routes/admin.daily-reports'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as AdminAttendanceRouteImport } from './routes/admin.attendance'
@@ -104,6 +105,11 @@ const AdminReportsRoute = AdminReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminNotificationsRoute = AdminNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminDailyReportsRoute = AdminDailyReportsRouteImport.update({
   id: '/daily-reports',
   path: '/daily-reports',
@@ -136,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/admin/attendance': typeof AdminAttendanceRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/daily-reports': typeof AdminDailyReportsRoute
+  '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
@@ -155,6 +162,7 @@ export interface FileRoutesByTo {
   '/admin/attendance': typeof AdminAttendanceRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/daily-reports': typeof AdminDailyReportsRoute
+  '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
@@ -177,6 +185,7 @@ export interface FileRoutesById {
   '/admin/attendance': typeof AdminAttendanceRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/daily-reports': typeof AdminDailyReportsRoute
+  '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
@@ -200,6 +209,7 @@ export interface FileRouteTypes {
     | '/admin/attendance'
     | '/admin/audit'
     | '/admin/daily-reports'
+    | '/admin/notifications'
     | '/admin/reports'
     | '/admin/settings'
     | '/admin/users'
@@ -219,6 +229,7 @@ export interface FileRouteTypes {
     | '/admin/attendance'
     | '/admin/audit'
     | '/admin/daily-reports'
+    | '/admin/notifications'
     | '/admin/reports'
     | '/admin/settings'
     | '/admin/users'
@@ -240,6 +251,7 @@ export interface FileRouteTypes {
     | '/admin/attendance'
     | '/admin/audit'
     | '/admin/daily-reports'
+    | '/admin/notifications'
     | '/admin/reports'
     | '/admin/settings'
     | '/admin/users'
@@ -367,6 +379,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminReportsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/notifications': {
+      id: '/admin/notifications'
+      path: '/notifications'
+      fullPath: '/admin/notifications'
+      preLoaderRoute: typeof AdminNotificationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/daily-reports': {
       id: '/admin/daily-reports'
       path: '/daily-reports'
@@ -403,6 +422,7 @@ interface AdminRouteChildren {
   AdminAttendanceRoute: typeof AdminAttendanceRoute
   AdminAuditRoute: typeof AdminAuditRoute
   AdminDailyReportsRoute: typeof AdminDailyReportsRoute
+  AdminNotificationsRoute: typeof AdminNotificationsRoute
   AdminReportsRoute: typeof AdminReportsRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminUsersRoute: typeof AdminUsersRoute
@@ -414,6 +434,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAttendanceRoute: AdminAttendanceRoute,
   AdminAuditRoute: AdminAuditRoute,
   AdminDailyReportsRoute: AdminDailyReportsRoute,
+  AdminNotificationsRoute: AdminNotificationsRoute,
   AdminReportsRoute: AdminReportsRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminUsersRoute: AdminUsersRoute,

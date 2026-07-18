@@ -16,14 +16,14 @@ import {
   X,
   Settings,
   Shield,
+  Bell,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui-kit";
-import { useEffect, useState, useCallback } from "react";
-import { api } from "@/lib/api";
-import { unreadEvents } from "@/lib/events";
+import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ProfilePicture } from "@/components/ProfilePicture";
+import { NotificationBell } from "@/components/NotificationBell";
 
 interface NavItem {
   to: string;
@@ -45,6 +45,7 @@ const adminNav: NavItem[] = [
     icon: <FileText className="h-4 w-4" />,
   },
   { to: "/admin/users", label: "Manage Interns", icon: <Users className="h-4 w-4" /> },
+  { to: "/admin/notifications", label: "Notifications", icon: <Bell className="h-4 w-4" /> },
   { to: "/admin/audit", label: "Activity Logs", icon: <Shield className="h-4 w-4" /> },
   { to: "/admin/settings", label: "Settings", icon: <Settings className="h-4 w-4" /> },
 ];
@@ -75,34 +76,8 @@ export function AppShell({
 
   const nav = variant === "admin" ? adminNav : internNav;
 
-  const [unreadCount, setUnreadCount] = useState(0);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  const loadUnread = useCallback(async () => {
-    try {
-      const data = await api<{ count: number }>("/admin/daily-reports/unread-count");
-      setUnreadCount(data.count);
-    } catch {
-      // silently ignore
-    }
-  }, []);
-
-  useEffect(() => {
-    if (variant !== "admin") return;
-
-    loadUnread();
-    const interval = setInterval(loadUnread, 10000);
-
-    const unsubscribe = unreadEvents.subscribe(() => {
-      loadUnread();
-    });
-
-    return () => {
-      clearInterval(interval);
-      unsubscribe();
-    };
-  }, [variant, loadUnread]);
 
   // Close mobile sidebar on navigation
   useEffect(() => {
@@ -141,33 +116,23 @@ export function AppShell({
           const active =
             item.to === `/${variant}` ? pathname === item.to : pathname.startsWith(item.to);
 
-          const isDailyReports = item.to === "/admin/daily-reports";
-
           return (
             <Link
               key={item.to}
               to={item.to as never}
-              className={`group relative flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+              className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
                 active
                   ? "bg-white/15 text-white"
                   : "text-white/60 hover:bg-white/8 hover:text-white"
               }`}
             >
-              <div className="flex items-center gap-3">
-                <span
-                  className={`absolute left-0 h-6 w-1 rounded-r-full transition ${
-                    active ? "bg-white opacity-100" : "opacity-0 group-hover:opacity-40"
-                  }`}
-                />
-                {item.icon}
-                {item.label}
-              </div>
-
-              {variant === "admin" && isDailyReports && unreadCount > 0 && (
-                <span className="rounded-full bg-red-500 px-2 py-0.5 text-xs text-white">
-                  {unreadCount}
-                </span>
-              )}
+              <span
+                className={`absolute left-0 h-6 w-1 rounded-r-full transition ${
+                  active ? "bg-white opacity-100" : "opacity-0 group-hover:opacity-40"
+                }`}
+              />
+              {item.icon}
+              {item.label}
             </Link>
           );
         })}
@@ -231,6 +196,8 @@ export function AppShell({
               </div>
             )}
           </div>
+
+          {variant === "admin" && <NotificationBell />}
         </div>
 
         {/* USER INFO */}
