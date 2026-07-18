@@ -109,7 +109,7 @@ function RegisterPage() {
               onChange={(e) => setFullname(e.target.value)}
               placeholder="Juan Dela Cruz"
               labelClassName="text-white/90"
-              className="text-black"
+              className="text-white"
             />
 
             <Input
@@ -119,7 +119,7 @@ function RegisterPage() {
               onChange={(e) => setUsername(e.target.value)}
               placeholder="juandc"
               labelClassName="text-white/90"
-              className="text-black"
+              className="text-white"
             />
 
             <div className="grid grid-cols-2 gap-3">
@@ -130,7 +130,7 @@ function RegisterPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Min. 8 characters"
                 labelClassName="text-white/90"
-                className="text-black"
+                className="text-white"
               />
 
               <PasswordInput
@@ -140,7 +140,7 @@ function RegisterPage() {
                 onChange={(e) => setConfirm(e.target.value)}
                 placeholder="Repeat"
                 labelClassName="text-white/90"
-                className="text-black"
+                className="text-white"
               />
             </div>
 

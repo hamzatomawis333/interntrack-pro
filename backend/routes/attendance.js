@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { pool } from "../db.js";
 import { requireAuth } from "../middleware/auth.js";
+import { sendNotification, attendanceEmail } from "../services/email.js";
 
 const router = Router();
 
@@ -96,6 +97,10 @@ router.post("/time-out", requireAuth(["intern"]), async (req, res) => {
     "UPDATE attendance SET time_out = ?, total_hours = ?, status = 'present' WHERE id = ?",
     [t.time, hours.toFixed(2), row.id],
   );
+
+  const [[user]] = await pool.query("SELECT fullname FROM users WHERE id = ?", [req.user.id]);
+  const email = attendanceEmail(user?.fullname || "Intern", "Time Out", hours.toFixed(2), t.date);
+  sendNotification(null, email.subject, email.body, "attendance").catch(() => {});
 
   res.json({ message: "Time out recorded", time: t.time, total_hours: hours });
 });

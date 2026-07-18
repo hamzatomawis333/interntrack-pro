@@ -1,6 +1,7 @@
 import express from "express";
 import { pool } from "../db.js";
 import { requireAuth } from "../middleware/auth.js";
+import { sendNotification, reportEmail } from "../services/email.js";
 
 const router = express.Router();
 
@@ -36,6 +37,10 @@ router.post("/", requireAuth(), async (req, res) => {
       `,
       [user_id, report_text, report_date],
     );
+
+    const [[user]] = await pool.query("SELECT fullname FROM users WHERE id = ?", [user_id]);
+    const email = reportEmail(user?.fullname || "Intern", report_text);
+    sendNotification(null, email.subject, email.body, "report").catch(() => {});
 
     res.json({
       message: "Report saved successfully",

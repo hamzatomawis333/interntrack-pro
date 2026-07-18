@@ -15,6 +15,7 @@ import {
   Menu,
   X,
   Settings,
+  Shield,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui-kit";
@@ -22,6 +23,7 @@ import { useEffect, useState, useCallback } from "react";
 import { api } from "@/lib/api";
 import { unreadEvents } from "@/lib/events";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { ProfilePicture } from "@/components/ProfilePicture";
 
 interface NavItem {
   to: string;
@@ -43,6 +45,7 @@ const adminNav: NavItem[] = [
     icon: <FileText className="h-4 w-4" />,
   },
   { to: "/admin/users", label: "Manage Interns", icon: <Users className="h-4 w-4" /> },
+  { to: "/admin/audit", label: "Activity Logs", icon: <Shield className="h-4 w-4" /> },
   { to: "/admin/settings", label: "Settings", icon: <Settings className="h-4 w-4" /> },
 ];
 
@@ -233,10 +236,13 @@ export function AppShell({
         {/* USER INFO */}
         <Link
           to={`/${variant}/settings` as never}
-          className="mb-3 block rounded-xl bg-white/8 px-3 py-2.5 transition hover:bg-white/12 cursor-pointer"
+          className="mb-3 flex items-center gap-3 rounded-xl bg-white/8 px-3 py-2.5 transition hover:bg-white/12 cursor-pointer"
         >
-          <div className="text-sm font-medium text-white">{user?.fullname}</div>
-          <div className="text-xs text-white/50">@{user?.username}</div>
+          <ProfilePicture userId={user?.id ?? 0} size="sm" />
+          <div className="flex-1 min-w-0">
+            <div className="truncate text-sm font-medium text-white">{user?.fullname}</div>
+            <div className="text-xs text-white/50">@{user?.username}</div>
+          </div>
         </Link>
 
         <div className="mt-2">

@@ -3,6 +3,8 @@ import { pool } from "../db.js";
 import { signToken } from "../middleware/auth.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { logAudit } from "../services/audit.js";
+import { sendNotification, registrationEmail } from "../services/email.js";
 
 const router = express.Router();
 
@@ -68,6 +70,9 @@ router.post("/register", async (req, res) => {
        VALUES (?, ?, ?, 'intern', 486, 0)`,
       [fullname, username, hashed],
     );
+
+    const email = registrationEmail(fullname, username);
+    sendNotification(null, email.subject, email.body, "registration").catch(() => {});
 
     return res.status(201).json({
       message: "Account created",

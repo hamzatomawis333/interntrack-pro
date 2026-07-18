@@ -25,6 +25,7 @@ import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminDailyReportsRouteImport } from './routes/admin.daily-reports'
+import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as AdminAttendanceRouteImport } from './routes/admin.attendance'
 import { Route as AdminUserIdRouteImport } from './routes/admin.$userId'
 
@@ -108,6 +109,11 @@ const AdminDailyReportsRoute = AdminDailyReportsRouteImport.update({
   path: '/daily-reports',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAuditRoute = AdminAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAttendanceRoute = AdminAttendanceRouteImport.update({
   id: '/attendance',
   path: '/attendance',
@@ -128,6 +134,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/admin/$userId': typeof AdminUserIdRoute
   '/admin/attendance': typeof AdminAttendanceRoute
+  '/admin/audit': typeof AdminAuditRoute
   '/admin/daily-reports': typeof AdminDailyReportsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -146,6 +153,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/admin/$userId': typeof AdminUserIdRoute
   '/admin/attendance': typeof AdminAttendanceRoute
+  '/admin/audit': typeof AdminAuditRoute
   '/admin/daily-reports': typeof AdminDailyReportsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -167,6 +175,7 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/admin/$userId': typeof AdminUserIdRoute
   '/admin/attendance': typeof AdminAttendanceRoute
+  '/admin/audit': typeof AdminAuditRoute
   '/admin/daily-reports': typeof AdminDailyReportsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -189,6 +198,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/admin/$userId'
     | '/admin/attendance'
+    | '/admin/audit'
     | '/admin/daily-reports'
     | '/admin/reports'
     | '/admin/settings'
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/admin/$userId'
     | '/admin/attendance'
+    | '/admin/audit'
     | '/admin/daily-reports'
     | '/admin/reports'
     | '/admin/settings'
@@ -227,6 +238,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/admin/$userId'
     | '/admin/attendance'
+    | '/admin/audit'
     | '/admin/daily-reports'
     | '/admin/reports'
     | '/admin/settings'
@@ -362,6 +374,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDailyReportsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/audit': {
+      id: '/admin/audit'
+      path: '/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AdminAuditRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/attendance': {
       id: '/admin/attendance'
       path: '/attendance'
@@ -382,6 +401,7 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminUserIdRoute: typeof AdminUserIdRoute
   AdminAttendanceRoute: typeof AdminAttendanceRoute
+  AdminAuditRoute: typeof AdminAuditRoute
   AdminDailyReportsRoute: typeof AdminDailyReportsRoute
   AdminReportsRoute: typeof AdminReportsRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
@@ -392,6 +412,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminUserIdRoute: AdminUserIdRoute,
   AdminAttendanceRoute: AdminAttendanceRoute,
+  AdminAuditRoute: AdminAuditRoute,
   AdminDailyReportsRoute: AdminDailyReportsRoute,
   AdminReportsRoute: AdminReportsRoute,
   AdminSettingsRoute: AdminSettingsRoute,

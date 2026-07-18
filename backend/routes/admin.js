@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { pool } from "../db.js";
 import { requireAuth } from "../middleware/auth.js";
+import { logAudit } from "../services/audit.js";
+import { sendNotification, attendanceEmail } from "../services/email.js";
 
 const router = Router();
 
@@ -119,6 +121,13 @@ router.delete("/attendance/:id", requireAuth(["admin"]), async (req, res) => {
       });
     }
 
+    logAudit(
+      req.user.id,
+      req.user.username || "Admin",
+      "delete_attendance",
+      `Deleted attendance record #${id}`,
+      req.ip,
+    );
     res.json({
       message: "Deleted successfully",
     });
@@ -180,22 +189,39 @@ router.put("/interns/:id", requireAuth(["admin"]), async (req, res) => {
     return res.status(400).json({ message: "Invalid hours" });
   }
 
+  const [[intern]] = await pool.query("SELECT fullname FROM users WHERE id = ?", [req.params.id]);
   await pool.query("UPDATE users SET required_hours=? WHERE id=? AND role='intern'", [
     required_hours,
     req.params.id,
   ]);
 
+  logAudit(
+    req.user.id,
+    req.user.username || "Admin",
+    "update_hours",
+    `Set ${intern?.fullname || req.params.id} required hours to ${required_hours}`,
+    req.ip,
+  );
   res.json({ message: "Updated" });
 });
 
 /* ================= DELETE INTERN ================= */
 router.delete("/interns/:id", requireAuth(["admin"]), async (req, res) => {
   const { id } = req.params;
+
+  const [[intern]] = await pool.query("SELECT fullname FROM users WHERE id = ?", [id]);
   await pool.query("DELETE FROM attendance WHERE user_id = ?", [id]);
   await pool.query("DELETE FROM manual_attendance WHERE user_id = ?", [id]);
   await pool.query("DELETE FROM daily_reports WHERE user_id = ?", [id]);
   await pool.query("DELETE FROM users WHERE id=? AND role='intern'", [id]);
 
+  logAudit(
+    req.user.id,
+    req.user.username || "Admin",
+    "delete_intern",
+    `Deleted intern: ${intern?.fullname || id}`,
+    req.ip,
+  );
   res.json({ message: "Deleted" });
 });
 
